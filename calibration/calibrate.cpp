@@ -111,6 +111,7 @@ public:
             }
             if (inputType == CAMERA)
                 inputCapture.open(cameraID);
+	    	inputCapture.set(CV_CAP_PROP_FPS, 23);
             if (inputType == VIDEO_FILE)
                 inputCapture.open(input);
             if (inputType != IMAGE_LIST && !inputCapture.isOpened())
