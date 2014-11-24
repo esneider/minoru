@@ -37,7 +37,14 @@ int main() {
         cv::imshow("MyVideo1", frame1);
         cv::imshow("MyVideo2", frame2);
 
-        if (cv::waitKey(30) == 27) {
+		int key = cv::waitKey(30);
+		if (key == 10) {
+			std::cout << "Enter pressed" << std::endl;
+			imwrite("testL.png", frame1);
+			imwrite("testR.png", frame2);
+		}
+
+        if (key == 27) {
             std::cout << "esc key is pressed by user" << std::endl;
             break;
         }
