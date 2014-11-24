@@ -5,10 +5,26 @@
 #include <iostream>
 #include <unistd.h>
 #include "opencv2/nonfree/features2d.hpp"
+#include <opencv2/imgproc/imgproc.hpp>
 
 
+int main(int argc, char* argv[]) {
 
-int main() {
+
+	cv::Mat cameraMatrixL, cameraMatrixR, distCoeffL, distCoeffR;
+
+	if (argc >= 2) {
+		const std::string inputFileLeft = argv[1];
+		const std::string inputFileRight = argv[2];
+		cv::FileStorage fsRight(inputFileRight, cv::FileStorage::READ);
+		cv::FileStorage fsLeft(inputFileLeft, cv::FileStorage::READ);
+
+		fsRight["Camera_Matrix"] >> cameraMatrixR;
+		fsLeft["Camera_Matrix"] >> cameraMatrixL;
+		fsRight["Distortion_Coefficients"] >> distCoeffR;
+		fsLeft["Distortion_Coefficients"] >> distCoeffL;
+	}
+
     // cv::initModule_nonfree();
     cv::VideoCapture cap1(1);
     cv::VideoCapture cap2(2);
@@ -30,13 +46,25 @@ int main() {
     cv::namedWindow("Camera2", CV_WINDOW_AUTOSIZE);
     cv::namedWindow("Matches", CV_WINDOW_AUTOSIZE);
 
+	bool flag = true;
+
     while (1) {
+		cv::Mat frame1pre;
+		cv::Mat frame2pre;
         cv::Mat frame1;
         cv::Mat frame2;
 
-        bool success1 = cap1.read(frame1);
-        bool success2 = cap2.read(frame2);
+        bool success1 = cap1.read(frame1pre);
+        bool success2 = cap2.read(frame2pre);
 
+		if (flag) {
+			cv::undistort(frame1pre, frame1, cameraMatrixL, distCoeffL);
+			cv::undistort(frame2pre, frame2, cameraMatrixR, distCoeffR);
+		}
+		else {
+			frame1 = frame1pre;
+			frame2 = frame2pre;
+		}
         if (!success1 || !success2) {
             std::cout << "Cannot read a frame from video stream" << std::endl;
             break;
@@ -81,14 +109,48 @@ int main() {
             }
         }
 
+		std::vector<cv::Point2f> leftPoints;
+		std::vector<cv::Point2f> rightPoints;
+
+		for(int i = 0; i < good_matches.size(); i++) {
+			leftPoints.push_back(keypoints_1[good_matches[i].queryIdx].pt);
+			rightPoints.push_back(keypoints_2[good_matches[i].trainIdx].pt);
+		}
+
+		cv::Mat fundMat;
+
+		fundMat = cv::findFundamentalMat(leftPoints, rightPoints);
+
+		cv::Mat h1;
+		cv::Mat h2;
+
+		cv::stereoRectifyUncalibrated(leftPoints, rightPoints, fundMat, frame1.size(), h1, h2, 3);
+
+		cv::Mat hLeft;
+		cv::Mat hRight;
+
+		hLeft = cameraMatrixL.inv() * h1 * cameraMatrixL;
+		hRight = cameraMatrixR.inv() * h2 * cameraMatrixR;
+
+		//std::cout << hLeft << std::endl;
+		//std::cout << hRight << std::endl;
+
+		cv::Mat finalLeft;
+		cv::Mat finalRight;
+
+		cv::warpPerspective(frame1, finalLeft, hLeft, frame1.size());
+		cv::warpPerspective(frame2, finalRight, hRight, frame2.size());
+
         cv::Mat img_matches;
         cv::drawMatches(frame1, keypoints_1, frame2, keypoints_2,
                 good_matches, img_matches, cv::Scalar::all(-1), cv::Scalar::all(-1),
                 cv::vector<char>(), cv::DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS );
 
-        cv::imshow("Matches", img_matches);
-        // cv::imshow("Camera1", frame1);
-        // cv::imshow("Camera2", frame2);
+        //cv::imshow("Matches", img_matches);
+        //cv::imshow("Camera1", frame1);
+        //cv::imshow("Camera2", frame2);
+		cv::imshow("Camera1", finalLeft);
+		cv::imshow("Camera2", finalRight);
 
 		int key = cv::waitKey(30);
 		if (key == 10) {
@@ -97,7 +159,9 @@ int main() {
 			imwrite("cameraR.png", frame2);
 			imwrite("matches.png", img_matches);
 		}
-
+		if (key == 'u') {
+			flag = !flag;
+		}
         if (key == 27) {
             std::cout << "esc key is pressed by user" << std::endl;
             break;
