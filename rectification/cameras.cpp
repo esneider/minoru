@@ -47,6 +47,8 @@ int main(int argc, char* argv[]) {
     cv::namedWindow("Matches", CV_WINDOW_AUTOSIZE);
 
 	bool flag = true;
+	double cotaY = 5;
+	double cotaX = 10;
 
     while (1) {
 		cv::Mat frame1pre;
@@ -102,9 +104,20 @@ int main(int argc, char* argv[]) {
             if( dist < min_dist ) min_dist = dist;
             if( dist > max_dist ) max_dist = dist;
         }
-
+	
+	//std::cout << matches[0] << std::endl;
+	//First filter: distancia en Y acotada. Distancia en X
         for(int i = 0; i < descriptors_1.rows; i++) {
-            if (matches[i].distance <= cv::max(2 * min_dist, 0.02)) {
+
+			double distX = abs(keypoints_1[matches[i].queryIdx].pt.x - keypoints_2[matches[i].trainIdx].pt.x);
+			double distY = abs(keypoints_1[matches[i].queryIdx].pt.y - keypoints_2[matches[i].trainIdx].pt.y);
+			
+			//std::cout << "X" << std::endl;
+			//std::cout << distX << std::endl;
+			//std::cout << "Y" << std::endl;
+			//std::cout << distY << std::endl;
+            //if (matches[i].distance <= cv::max(2 * min_dist, 0.02)) {
+			if (distY < cotaY && distX < cotaX) {
                 good_matches.push_back(matches[i]);
             }
         }
@@ -119,38 +132,38 @@ int main(int argc, char* argv[]) {
 
 		cv::Mat fundMat;
 
-		fundMat = cv::findFundamentalMat(leftPoints, rightPoints);
+		//fundMat = cv::findFundamentalMat(leftPoints, rightPoints);
 
-		cv::Mat h1;
-		cv::Mat h2;
+		//cv::Mat h1;
+		//cv::Mat h2;
 
-		cv::stereoRectifyUncalibrated(leftPoints, rightPoints, fundMat, frame1.size(), h1, h2, 3);
+		//cv::stereoRectifyUncalibrated(leftPoints, rightPoints, fundMat, frame1.size(), h1, h2, 3);
 
-		cv::Mat hLeft;
-		cv::Mat hRight;
+		//cv::Mat hLeft;
+		//cv::Mat hRight;
 
-		hLeft = cameraMatrixL.inv() * h1 * cameraMatrixL;
-		hRight = cameraMatrixR.inv() * h2 * cameraMatrixR;
+		//hLeft = cameraMatrixL.inv() * h1 * cameraMatrixL;
+		//hRight = cameraMatrixR.inv() * h2 * cameraMatrixR;
 
 		//std::cout << hLeft << std::endl;
 		//std::cout << hRight << std::endl;
 
-		cv::Mat finalLeft;
-		cv::Mat finalRight;
+		//cv::Mat finalLeft;
+		//cv::Mat finalRight;
 
-		cv::warpPerspective(frame1, finalLeft, hLeft, frame1.size());
-		cv::warpPerspective(frame2, finalRight, hRight, frame2.size());
+		//cv::warpPerspective(frame1, finalLeft, hLeft, frame1.size());
+		//cv::warpPerspective(frame2, finalRight, hRight, frame2.size());
 
         cv::Mat img_matches;
         cv::drawMatches(frame1, keypoints_1, frame2, keypoints_2,
                 good_matches, img_matches, cv::Scalar::all(-1), cv::Scalar::all(-1),
                 cv::vector<char>(), cv::DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS );
 
-        //cv::imshow("Matches", img_matches);
+        cv::imshow("Matches", img_matches);
         //cv::imshow("Camera1", frame1);
         //cv::imshow("Camera2", frame2);
-		cv::imshow("Camera1", finalLeft);
-		cv::imshow("Camera2", finalRight);
+		//cv::imshow("Camera1", finalLeft);
+		//cv::imshow("Camera2", finalRight);
 
 		int key = cv::waitKey(30);
 		if (key == 10) {
@@ -161,6 +174,23 @@ int main(int argc, char* argv[]) {
 		}
 		if (key == 'u') {
 			flag = !flag;
+		}
+		if (key == 'w') {
+			cotaY++;
+			std::cout << cotaY << std::endl;
+		}
+		if (key == 's') {
+			cotaY--;
+			std::cout << cotaY << std::endl;
+		}
+		if (key == 'a')
+		{
+			cotaX--;
+			std::cout << cotaX << std::endl;
+		}
+		if (key == 'd') {
+			cotaX++;
+			std::cout << cotaX << std::endl;
 		}
         if (key == 27) {
             std::cout << "esc key is pressed by user" << std::endl;
