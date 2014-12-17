@@ -46,11 +46,12 @@ int main(int argc, char* argv[]) {
     cv::namedWindow("Camera2", CV_WINDOW_AUTOSIZE);
     cv::namedWindow("Matches", CV_WINDOW_AUTOSIZE);
 
-	bool flag = false;
+	bool undistort = false;
 	double cotaY = 20;
 	double cotaX = 20;
-	bool flag2 = true;
+	bool video = true;
 	bool flagrectify = false;
+	bool nextFrame = false;
 	std::vector<cv::Point2f> leftPoints;
 	std::vector<cv::Point2f> rightPoints;
 
@@ -58,13 +59,13 @@ int main(int argc, char* argv[]) {
     cv::Mat frame2;
 
     while (1) {
-		if (flag2) {
+		if (video || nextFrame) {
 			cv::Mat frame1pre;
 			cv::Mat frame2pre;
         	bool success1 = cap1.read(frame1pre);
         	bool success2 = cap2.read(frame2pre);
 
-			if (flag) {
+			if (undistort) {
 				cv::undistort(frame1pre, frame1, cameraMatrixL, distCoeffL);
 				cv::undistort(frame2pre, frame2, cameraMatrixR, distCoeffR);
 			}
@@ -140,6 +141,7 @@ int main(int argc, char* argv[]) {
 
         	cv::imshow("Matches", img_matches);
         
+			nextFrame = false;
 		}
 		if (flagrectify) {
 			cv::Mat fundMat;
@@ -178,12 +180,12 @@ int main(int argc, char* argv[]) {
 			//imwrite("matches.png", img_matches);
 		}
 		if (key == 'u') {
-			flag = !flag;
+			undistort = !undistort;
 		}
-		if (key == 'i') {
-			flag2 = !flag2;
+		if (key == 'v') {
+			video = !video;
 		}
-		if (key == 'o') {
+		if (key == 'r') {
 			flagrectify = !flagrectify;
 		}
 		if (key == 'w') {
@@ -202,6 +204,9 @@ int main(int argc, char* argv[]) {
 		if (key == 'd') {
 			cotaX++;
 			std::cout << cotaX << std::endl;
+		}
+		if (key == 'n') {
+			nextFrame = true;
 		}
         if (key == 27) {
             std::cout << "esc key is pressed by user" << std::endl;
