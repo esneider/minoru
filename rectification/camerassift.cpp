@@ -8,51 +8,69 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/nonfree/features2d.hpp>
 
-
 void error(const char *format, ...) {
 
     va_list args;
     va_start(args, format);
     vprintf(format, args);
+    printf("\n");
     va_end(args);
     exit(-1);
+}
+
+class Camera {
+
+    size_t index;
+    size_t width;
+    size_t height;
+    size_t fps;
+
+    cv::Mat distCoeff;
+    cv::Mat cameraMatrix;
+    cv::VideoCapture *capture;
+
+public:
+
+    Camera(size_t index, std::string cam_file): index(index) {
+
+        cv::FileStorage fs(cam_file, cv::FileStorage::READ);
+
+        fs["Camera_Matrix"] >> cameraMatrix;
+        fs["Distortion_Coefficients"] >> distCoeff;
+
+        capture = new cv::VideoCapture(index);
+        if (!capture->isOpened()) {
+            error("Error opening the camera (index %d)", index);
+        }
+
+        capture->set(CV_CAP_PROP_FPS, FRAMES_PER_SECOND);
+
+        // capture->
+    }
 }
 
 int main(int argc, char** argv) {
 
     if (argc != 2) {
-        error("Usage: %s CAM_MATRIX_L CAM_MATRIX_R\n", argv[0]);
-        usage(argv[0]);
+        error("Usage: %s CAM_MATRIX_L CAM_MATRIX_R", argv[0]);
     }
 
-    cv::Mat cameraMatrixL, cameraMatrixR, distCoeffL, distCoeffR;
-
-    cv::FileStorage fsRight(argv[1], cv::FileStorage::READ);
-    cv::FileStorage fsLeft(argv[2], cv::FileStorage::READ);
-
-    fsRight["Camera_Matrix"] >> cameraMatrixR;
-    fsLeft["Camera_Matrix"] >> cameraMatrixL;
-    fsRight["Distortion_Coefficients"] >> distCoeffR;
-    fsLeft["Distortion_Coefficients"] >> distCoeffL;
-
-    cv::VideoCapture cap1(1);
-    cv::VideoCapture cap2(2);
-
-    if (!cap1.isOpened() || !cap2.isOpened()) {
-        error("Cannot open the video cam");
-    }
+    Camera  left(1, argv[1]);
+    Camera right(2, argv[2]);
 
     cap1.set(CV_CAP_PROP_FPS, 23);
     cap2.set(CV_CAP_PROP_FPS, 23);
 
-    double dWidth = cap2.get(CV_CAP_PROP_FRAME_WIDTH);
-    double dHeight = cap2.get(CV_CAP_PROP_FRAME_HEIGHT);
+    double width  = cap2.get(CV_CAP_PROP_FRAME_WIDTH);
+    double height = cap2.get(CV_CAP_PROP_FRAME_HEIGHT);
 
-    std::cout << "Frame size : " << dWidth << " x " << dHeight << std::endl;
+    std::cout << "Frame size : " << width << " x " << height << std::endl;
 
     cv::namedWindow("Camera1", CV_WINDOW_AUTOSIZE);
     cv::namedWindow("Camera2", CV_WINDOW_AUTOSIZE);
     cv::namedWindow("Matches", CV_WINDOW_AUTOSIZE);
+
+    // Joda
 
     bool undistort = false;
     double cotaY = 20;
