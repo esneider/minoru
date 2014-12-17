@@ -8,6 +8,10 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/nonfree/features2d.hpp>
 
+
+#define FRAMES_PER_SECOND 23
+
+
 void error(const char *format, ...) {
 
     va_list args;
@@ -21,9 +25,9 @@ void error(const char *format, ...) {
 class Camera {
 
     size_t index;
+    size_t fps;
     size_t width;
     size_t height;
-    size_t fps;
 
     cv::Mat distCoeff;
     cv::Mat cameraMatrix;
@@ -45,7 +49,12 @@ public:
 
         capture->set(CV_CAP_PROP_FPS, FRAMES_PER_SECOND);
 
-        // capture->
+        fps    = capture->get(CV_CAP_PROP_FPS);
+        width  = captura->get(CV_CAP_PROP_FRAME_WIDTH);
+        height = captura->get(CV_CAP_PROP_FRAME_HEIGHT);
+
+        printf("Successfully opened camera %d in %dx%dx%d\n",
+               index, width, height, fps);
     }
 }
 
@@ -58,19 +67,9 @@ int main(int argc, char** argv) {
     Camera  left(1, argv[1]);
     Camera right(2, argv[2]);
 
-    cap1.set(CV_CAP_PROP_FPS, 23);
-    cap2.set(CV_CAP_PROP_FPS, 23);
-
-    double width  = cap2.get(CV_CAP_PROP_FRAME_WIDTH);
-    double height = cap2.get(CV_CAP_PROP_FRAME_HEIGHT);
-
-    std::cout << "Frame size : " << width << " x " << height << std::endl;
-
     cv::namedWindow("Camera1", CV_WINDOW_AUTOSIZE);
     cv::namedWindow("Camera2", CV_WINDOW_AUTOSIZE);
     cv::namedWindow("Matches", CV_WINDOW_AUTOSIZE);
-
-    // Joda
 
     bool undistort = false;
     double cotaY = 20;
