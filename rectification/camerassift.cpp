@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cstdarg>
+#include <cstdio>
 #include <unistd.h>
 #include <opencv2/opencv.hpp>
 #include <opencv2/core/core.hpp>
@@ -16,10 +17,10 @@ void error(const char *format, ...) {
 
     va_list args;
     va_start(args, format);
-    vprintf(format, args);
-    printf("\n");
+    std::vprintf(format, args);
+    std::printf("\n");
     va_end(args);
-    exit(-1);
+    std::exit(-1);
 }
 
 class Camera {
@@ -30,21 +31,24 @@ class Camera {
     size_t height;
 
     cv::Mat distCoeff;
-    cv::Mat cameraMatrix;
+    cv::Mat camMatrix;
+
     cv::VideoCapture *capture;
 
 public:
 
-    Camera(size_t index, std::string cam_file): index(index) {
+    Camera(size_t index, std::string camFile): index(index) {
 
-        cv::FileStorage fs(cam_file, cv::FileStorage::READ);
+        // Read intrinsic camera parameters
+        cv::FileStorage fs(camFile, cv::FileStorage::READ);
 
-        fs["Camera_Matrix"] >> cameraMatrix;
+        fs["Camera_Matrix"] >> camMatrix;
         fs["Distortion_Coefficients"] >> distCoeff;
 
+        // Open camera stream
         capture = new cv::VideoCapture(index);
         if (!capture->isOpened()) {
-            error("Error opening the camera (index %d)", index);
+            error("Error opening the camera (index %zu)", index);
         }
 
         capture->set(CV_CAP_PROP_FPS, FRAMES_PER_SECOND);
@@ -53,8 +57,8 @@ public:
         width  = capture->get(CV_CAP_PROP_FRAME_WIDTH);
         height = capture->get(CV_CAP_PROP_FRAME_HEIGHT);
 
-        printf("Successfully opened camera %d in %dx%dx%d\n",
-               index, width, height, fps);
+        std::printf("Successfully opened camera %zu in %zux%zux%zu\n",
+                    index, width, height, fps);
     }
 
     bool getFrame(cv::Mat &frame) {
@@ -62,9 +66,9 @@ public:
     }
 
     void undistort(cv::Mat &src, cv::Mat &dst) {
-        cv::undistort(src, dst, cameraMatrix, distCoeff);
+        cv::undistort(src, dst, camMatrix, distCoeff);
     }
-}
+};
 
 int main(int argc, char** argv) {
 

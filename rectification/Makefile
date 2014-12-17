@@ -1,7 +1,7 @@
 .PHONY: all cameras clean
 
 all:
-	g++ -o cameras cameras.cpp `pkg-config --libs --cflags opencv`
+	g++ -o cameras camerassift.cpp `pkg-config --libs --cflags opencv`
 	chmod a+x cameras
 cameras:
 	./cameras
