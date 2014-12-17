@@ -50,11 +50,19 @@ public:
         capture->set(CV_CAP_PROP_FPS, FRAMES_PER_SECOND);
 
         fps    = capture->get(CV_CAP_PROP_FPS);
-        width  = captura->get(CV_CAP_PROP_FRAME_WIDTH);
-        height = captura->get(CV_CAP_PROP_FRAME_HEIGHT);
+        width  = capture->get(CV_CAP_PROP_FRAME_WIDTH);
+        height = capture->get(CV_CAP_PROP_FRAME_HEIGHT);
 
         printf("Successfully opened camera %d in %dx%dx%d\n",
                index, width, height, fps);
+    }
+
+    bool getFrame(cv::Mat &frame) {
+        return capture->read(frame);
+    }
+
+    void undistort(cv::Mat &src, cv::Mat &dst) {
+        cv::undistort(src, dst, cameraMatrix, distCoeff);
     }
 }
 
@@ -87,12 +95,12 @@ int main(int argc, char** argv) {
         if (video || nextFrame) {
             cv::Mat frame1pre;
             cv::Mat frame2pre;
-            bool success1 = cap1.read(frame1pre);
-            bool success2 = cap2.read(frame2pre);
+            bool success1 =  left.getFrame(frame1pre);
+            bool success2 = right.getFrame(frame2pre);
 
             if (undistort) {
-                cv::undistort(frame1pre, frame1, cameraMatrixL, distCoeffL);
-                cv::undistort(frame2pre, frame2, cameraMatrixR, distCoeffR);
+                 left.undistort(frame1pre, frame1);
+                right.undistort(frame2pre, frame2);
             }
             else {
                 frame1 = frame1pre;
