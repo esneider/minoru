@@ -2,6 +2,7 @@
 #include <cstdarg>
 #include <cstdio>
 #include <unistd.h>
+
 #include <opencv2/opencv.hpp>
 #include <opencv2/core/core.hpp>
 #include <opencv2/features2d/features2d.hpp>
@@ -70,9 +71,9 @@ public:
     }
 };
 
-int main(int argc, char** argv) {
+int main(int argc, char **argv) {
 
-    if (argc != 2) {
+    if (argc != 3) {
         error("Usage: %s CAM_MATRIX_L CAM_MATRIX_R", argv[0]);
     }
 
