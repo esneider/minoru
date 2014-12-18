@@ -10,9 +10,7 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/nonfree/features2d.hpp>
 
-
 #define FRAMES_PER_SECOND 23
-
 
 void error(const char *format, ...) {
 
@@ -42,6 +40,9 @@ public:
 
         // Read intrinsic camera parameters
         cv::FileStorage fs(camFile, cv::FileStorage::READ);
+        if (!fs.isOpened()) {
+            error("Error opening calibration file %s", camFile);
+        }
 
         fs["Camera_Matrix"] >> camMatrix;
         fs["Distortion_Coefficients"] >> distCoeff;
@@ -74,7 +75,7 @@ public:
 int main(int argc, char **argv) {
 
     if (argc != 3) {
-        error("Usage: %s CAM_MATRIX_L CAM_MATRIX_R", argv[0]);
+        error("Usage: %s CALIB_FILE_L CALIB_FILE_R", argv[0]);
     }
 
     Camera  left(1, argv[1]);

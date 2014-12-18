@@ -1,6 +1,6 @@
+#include <vector>
 #include <cstdio>
 #include <cstdarg>
-#include <vector>
 #include <ctime>
 
 #include <opencv2/core/core.hpp>
@@ -138,6 +138,7 @@ int main(int argc, char **argv) {
     std::vector<Corners> imagePoints = getCornersSamples(index);
     std::pair<cv::Mat, cv::Mat> parameters = getIntrinsicParameters(imagePoints);
 
+    // Save intrinsic parameters
     cv::FileStorage fs(argv[2], cv::FileStorage::WRITE);
 
     if (!fs.isOpened()) {
