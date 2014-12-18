@@ -1,7 +1,7 @@
 .PHONY: all cameras clean
 
 all:
-	g++ -o cameras camerassift.cpp `pkg-config --libs --cflags opencv`
+	g++ -msse3 -o cameras camerassift.cpp _libelas/*.cpp -I_libelas `pkg-config --libs --cflags opencv`
 	g++ -o calibrate calibrate.cpp `pkg-config --libs --cflags opencv`
 	chmod a+x cameras calibrate
 cameras:
