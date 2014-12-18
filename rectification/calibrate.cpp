@@ -1,11 +1,6 @@
-#include <iostream>
-#include <sstream>
-#include <time.h>
 #include <cstdio>
 #include <cstdarg>
 #include <vector>
-#include <algorithm>
-#include <string>
 #include <ctime>
 
 #include <opencv2/core/core.hpp>
@@ -20,6 +15,9 @@
 #define FRAME_HEIGHT 480
 #define NUM_FRAMES 25
 #define DELAY_BETWEEN_FRAMES (CLOCKS_PER_SEC * 0.1)
+
+// Do not change
+#define FRAMES_PER_SECOND 23
 
 typedef std::vector<cv::Point2f> Corners;
 
@@ -41,6 +39,8 @@ std::vector<Corners> getCornersSamples(size_t index) {
     if (!capture.isOpened()) {
         error("Error opening the camera (index %zu)", index);
     }
+
+    capture.set(CV_CAP_PROP_FPS, FRAMES_PER_SECOND);
 
     std::vector<Corners> cornersSamples;
     bool started = false;
