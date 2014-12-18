@@ -34,7 +34,7 @@ class Camera {
     cv::Mat distCoeff;
     cv::Mat camMatrix;
 
-    cv::VideoCapture *capture;
+    cv::VideoCapture capture;
 
 public:
 
@@ -47,23 +47,23 @@ public:
         fs["Distortion_Coefficients"] >> distCoeff;
 
         // Open camera stream
-        capture = new cv::VideoCapture(index);
-        if (!capture->isOpened()) {
+        capture.open(index);
+        if (!capture.isOpened()) {
             error("Error opening the camera (index %zu)", index);
         }
 
-        capture->set(CV_CAP_PROP_FPS, FRAMES_PER_SECOND);
+        capture.set(CV_CAP_PROP_FPS, FRAMES_PER_SECOND);
 
-        fps    = capture->get(CV_CAP_PROP_FPS);
-        width  = capture->get(CV_CAP_PROP_FRAME_WIDTH);
-        height = capture->get(CV_CAP_PROP_FRAME_HEIGHT);
+        fps    = capture.get(CV_CAP_PROP_FPS);
+        width  = capture.get(CV_CAP_PROP_FRAME_WIDTH);
+        height = capture.get(CV_CAP_PROP_FRAME_HEIGHT);
 
         std::printf("Successfully opened camera %zu in %zux%zux%zu\n",
                     index, width, height, fps);
     }
 
     bool getFrame(cv::Mat &frame) {
-        return capture->read(frame);
+        return capture.read(frame);
     }
 
     void undistort(cv::Mat &src, cv::Mat &dst) {
