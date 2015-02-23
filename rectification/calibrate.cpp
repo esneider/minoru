@@ -28,6 +28,7 @@ typedef std::vector<cv::Point2f> Corners;
 class CameraParameters {
 
 public:
+    // Intirinsic parameters
 	cv::Mat cameraMatrix1;
 	cv::Mat distCoeff1;
 	cv::Mat cameraMatrix2;
@@ -37,18 +38,26 @@ public:
 	cv::Mat E;
 	cv::Mat F;
 
+    // Extrinsic parameters
 	cv::Mat R1;
 	cv::Mat R2;
 	cv::Mat P1;
 	cv::Mat P2;
 	cv::Mat Q;
 
+    // Transformation map
 	cv::Mat rmap[2][2];
 
-	cv::Size newSize;
+	cv::Size size;
 
-	CameraParameters(cv::Mat cm1, cv::Mat dc1, cv::Mat cm2, cv::Mat dc2, cv::Mat R, cv::Mat T, cv::Mat E, cv::Mat F): cameraMatrix1(cm1), distCoeff1(dc1), cameraMatrix2(cm2), distCoeff2(dc2), R(R), T(T), E(E), F(F) {
-	};
+    CameraParameters():
+        cameraMatrix1(cv::Mat::eye(3, 3, CV_64F)),
+        distCoeff1(cv::Mat::zeros(8, 1, CV_64F)),
+        cameraMatrix2(cv::Mat::eye(3, 3, CV_64F)),
+        distCoeff2(cv::Mat::zeros(8, 1, CV_64F)),
+        size(FRAME_WIDTH, FRAME_HEIGHT) {
+
+    }
 };
 
 void error(const char *format, ...) {
@@ -139,86 +148,70 @@ CameraParameters *getParameters(std::vector<Corners> imagePoints1, std::vector<C
 
     // Calibrate
     std::vector<std::vector<cv::Point3f> > objectPoints(imagePoints1.size(), corners);
-    cv::Mat rvecs, tvecs, evecs, fvecs;
-    cv::Mat cameraMatrix1 = cv::Mat::eye(3, 3, CV_64F);
-    cv::Mat distCoeff1 = cv::Mat::zeros(8, 1, CV_64F);
-	cv::Mat cameraMatrix2 = cv::Mat::eye(3, 3, CV_64F);
-    cv::Mat distCoeff2 = cv::Mat::zeros(8, 1, CV_64F);
+    CameraParameters *params = new CameraParameters();
 
 	double rms = cv::stereoCalibrate(
 		objectPoints,
 		imagePoints1,
 		imagePoints2,
-		cameraMatrix1,
-		distCoeff1,
-		cameraMatrix2,
-		distCoeff2,
-		cv::Size(FRAME_WIDTH, FRAME_HEIGHT),
-		rvecs,
-		tvecs,
-		evecs,
-		fvecs
-        //CV_CALIB_RATIONAL_MODEL|CV_CALIB_FIX_K4|CV_CALIB_FIX_K5
-	);
-
-    CameraParameters* cameraParameters = new CameraParameters(
-		cameraMatrix1,
-		distCoeff1,
-		cameraMatrix2,
-		distCoeff2,
-		rvecs,
-		tvecs,
-		evecs,
-		fvecs
+		params->cameraMatrix1,
+		params->distCoeff1,
+		params->cameraMatrix2,
+		params->distCoeff2,
+		params->size,
+		params->R,
+		params->T,
+		params->E,
+		params->F
 	);
 
 	cv::stereoRectify(
-		cameraParameters->cameraMatrix1,
-		cameraParameters->distCoeff1,
-		cameraParameters->cameraMatrix2,
-		cameraParameters->distCoeff2,
-		cv::Size(FRAME_WIDTH, FRAME_HEIGHT),
-		cameraParameters->R,
-		cameraParameters->T,
-		cameraParameters->R1,
-		cameraParameters->R2,
-		cameraParameters->P1,
-		cameraParameters->P2,
-		cameraParameters->Q,
+		params->cameraMatrix1,
+		params->distCoeff1,
+		params->cameraMatrix2,
+		params->distCoeff2,
+		params->size,
+		params->R,
+		params->T,
+		params->R1,
+		params->R2,
+		params->P1,
+		params->P2,
+		params->Q,
 		CV_CALIB_ZERO_DISPARITY,
 		-1,
-		cameraParameters->newSize
+		params->size
 	);
 
-	return cameraParameters;
+	return params;
 }
 
 int main(int argc, char **argv) {
 
     std::vector<Corners> imagePoints1 = getCornersSamples(CAMERA_1);
 	std::vector<Corners> imagePoints2 = getCornersSamples(CAMERA_2);
-    
-    CameraParameters *parameters = getParameters(imagePoints1, imagePoints2);
 
-	cv::initUndistortRectifyMap(parameters->cameraMatrix1, parameters->distCoeff1, parameters->R1, parameters->P1, parameters->newSize, CV_16SC2, parameters->rmap[0][0], parameters->rmap[0][1]);
+    CameraParameters *params = getParameters(imagePoints1, imagePoints2);
 
-	cv::initUndistortRectifyMap(parameters->cameraMatrix2, parameters->distCoeff2, parameters->R2, parameters->P2, parameters->newSize, CV_16SC2, parameters->rmap[1][0], parameters->rmap[1][1]);
+	cv::initUndistortRectifyMap(params->cameraMatrix1, params->distCoeff1, params->R1, params->P1, params->size, CV_16SC2, params->rmap[0][0], params->rmap[0][1]);
 
-	
+	cv::initUndistortRectifyMap(params->cameraMatrix2, params->distCoeff2, params->R2, params->P2, params->size, CV_16SC2, params->rmap[1][0], params->rmap[1][1]);
+
+
 	cv::Mat canvas;
 	double sf;
 	int w, h;
 
-	sf = 600./MAX(parameters->newSize.width, parameters->newSize.height);
-	w = (int)(parameters->newSize.width*sf);
-	h = (int)(parameters->newSize.height*sf);
+	sf = 600./MAX(params->size.width, params->size.height);
+	w = (int)(params->size.width*sf);
+	h = (int)(params->size.height*sf);
 	canvas.create(h, w*2, CV_8UC3);
-	
+
 	cv::VideoCapture caps[2];
 
 	caps[0] = cv::VideoCapture(CAMERA_1);
 	caps[1] = cv::VideoCapture(CAMERA_2);
-	
+
 	caps[0].set(CV_CAP_PROP_FPS, FRAMES_PER_SECOND);
 	caps[1].set(CV_CAP_PROP_FPS, FRAMES_PER_SECOND);
 
@@ -230,11 +223,11 @@ int main(int argc, char **argv) {
 
 		for( k = 0; k < 2; k++ ) {
 			bool success = caps[k].read(img);
-			cv::remap(img, rimg, parameters->rmap[k][0], parameters->rmap[k][1], cv::INTER_LINEAR);
+			cv::remap(img, rimg, params->rmap[k][0], params->rmap[k][1], cv::INTER_LINEAR);
 			//cv::cvtColor(rimg, cimg, cv::COLOR_GRAY2BGR);
 			cv::Mat canvasPart = canvas(cv::Rect(w*k, 0, w, h));
 			cv::resize(rimg, canvasPart, canvasPart.size(), 0, 0, cv::INTER_AREA);
-			
+
 			/**
 			if( useCalibrated ) {
 				Rect vroi(cvRound(validRoi[k].x*sf), cvRound(validRoi[k].y*sf),
@@ -263,8 +256,8 @@ int main(int argc, char **argv) {
         error("Error opening destination file");
     }
 
-    fs << "Camera_Matrix" << parameters.first;
-    fs << "Distortion_Coefficients" << parameters.second;
+    fs << "Camera_Matrix" << params.first;
+    fs << "Distortion_Coefficients" << params.second;
 	*/
-	delete parameters;
+	delete params;
 }
