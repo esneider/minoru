@@ -1,7 +1,7 @@
 .PHONY: all cameras clean
 
 all:
-	g++ -o calibrate calibrate.cpp `pkg-config --libs --cflags opencv`
+	g++ -o calibrate calibrate.cpp `pkg-config --libs --cflags opencv` -std=c++11
 	chmod a+x calibrate
 quirks:
 	sudo rmmod uvcvideo

@@ -20,41 +20,35 @@
 
 // Do not change
 #define FRAMES_PER_SECOND 23
-#define CAMERA_1 1
-#define CAMERA_2 2
+#define CAMERA_1 0
+#define CAMERA_2 1
 
 typedef std::vector<cv::Point2f> Corners;
 
-class CameraParameters {
+class StereoParameters {
 
 public:
     // Intirinsic parameters
-    cv::Mat cameraMatrix1;
-    cv::Mat distCoeff1;
-    cv::Mat cameraMatrix2;
-    cv::Mat distCoeff2;
+    std::vector<cv::Mat> cameraMatrix;
+    std::vector<cv::Mat> distCoeffs;
     cv::Mat R;
     cv::Mat T;
     cv::Mat E;
     cv::Mat F;
 
     // Extrinsic parameters
-    cv::Mat R1;
-    cv::Mat R2;
-    cv::Mat P1;
-    cv::Mat P2;
+    cv::Mat rotation[2];
+    cv::Mat projection[2];
     cv::Mat Q;
 
-    // Transformation map
-    cv::Mat rmap[2][2];
+    // Rectification map
+    cv::Mat map[2][2];
 
     cv::Size size;
 
-    CameraParameters():
-        cameraMatrix1(cv::Mat::eye(3, 3, CV_64F)),
-        distCoeff1(cv::Mat::zeros(8, 1, CV_64F)),
-        cameraMatrix2(cv::Mat::eye(3, 3, CV_64F)),
-        distCoeff2(cv::Mat::zeros(8, 1, CV_64F)),
+    StereoParameters():
+        cameraMatrix(2, cv::Mat::eye(3, 3, CV_64F)),
+        distCoeffs(2, cv::Mat::zeros(8, 1, CV_64F)),
         size(FRAME_WIDTH, FRAME_HEIGHT) {
 
     }
@@ -73,10 +67,10 @@ void error(const char *format, ...) {
 std::vector<Corners> getCornersSamples(size_t index) {
 
     cv::Size numSquares(NUM_HOR_SQUARES, NUM_VER_SQUARES);
-    cv::VideoCapture capture(index);
+    cv::VideoCapture capture(index + 1);
 
     if (!capture.isOpened()) {
-        error("Error opening the camera (index %zu)", index);
+        error("Error opening the camera (index %zu)", index + 1);
     }
 
     capture.set(CV_CAP_PROP_FPS, FRAMES_PER_SECOND);
@@ -122,7 +116,7 @@ std::vector<Corners> getCornersSamples(size_t index) {
 
         // Show image
         cv::drawChessboardCorners(frame, numSquares, cv::Mat(corners), found);
-        cv::imshow("Image View", frame);
+        cv::imshow("Calibrate", frame);
 
         // Wait for 's' to start
         if (cv::waitKey(100) == 's') {
@@ -133,9 +127,9 @@ std::vector<Corners> getCornersSamples(size_t index) {
     return cornersSamples;
 }
 
-CameraParameters *getParameters(std::vector<Corners> imagePoints1, std::vector<Corners> imagePoints2) {
+StereoParameters *getParameters(std::vector<Corners> imagePoints1, std::vector<Corners> imagePoints2) {
 
-    CameraParameters *params = new CameraParameters();
+    StereoParameters *params = new StereoParameters();
 
     // Corner positions in the board space
     std::vector<cv::Point3f> corners;
@@ -150,37 +144,23 @@ CameraParameters *getParameters(std::vector<Corners> imagePoints1, std::vector<C
 
     // Calibrate
     double rms = cv::stereoCalibrate(
-        objectPoints,
-        imagePoints1,
-        imagePoints2,
-        params->cameraMatrix1,
-        params->distCoeff1,
-        params->cameraMatrix2,
-        params->distCoeff2,
-        params->size,
-        params->R,
-        params->T,
-        params->E,
-        params->F,
-        cv::TermCriteria(CV_TERMCRIT_ITER|CV_TERMCRIT_EPS, 30, 1e-6),
-        CV_CALIB_RATIONAL_MODEL|CV_CALIB_FIX_K4|CV_CALIB_FIX_K5
+        objectPoints, imagePoints1, imagePoints2,
+        params->cameraMatrix[CAMERA_1], params->distCoeffs[CAMERA_1],
+        params->cameraMatrix[CAMERA_2], params->distCoeffs[CAMERA_2],
+        params->size, params->R, params->T, params->E, params->F,
+        cv::TermCriteria(CV_TERMCRIT_EPS | CV_TERMCRIT_ITER, 30, 1e-6),
+        CV_CALIB_RATIONAL_MODEL | CV_CALIB_FIX_K4 | CV_CALIB_FIX_K5
     );
 
     std::cout << "RMS = " << rms << std::endl;
 
     // Rectify
     cv::stereoRectify(
-        params->cameraMatrix1,
-        params->distCoeff1,
-        params->cameraMatrix2,
-        params->distCoeff2,
-        params->size,
-        params->R,
-        params->T,
-        params->R1,
-        params->R2,
-        params->P1,
-        params->P2,
+        params->cameraMatrix[CAMERA_1], params->distCoeffs[CAMERA_1],
+        params->cameraMatrix[CAMERA_2], params->distCoeffs[CAMERA_2],
+        params->size, params->R, params->T,
+        params->rotation[CAMERA_1], params->rotation[CAMERA_2],
+        params->projection[CAMERA_1], params->projection[CAMERA_2],
         params->Q,
         CV_CALIB_ZERO_DISPARITY,
         -1,
@@ -188,27 +168,15 @@ CameraParameters *getParameters(std::vector<Corners> imagePoints1, std::vector<C
     );
 
     // Compute rectification maps
-    cv::initUndistortRectifyMap(
-        params->cameraMatrix1,
-        params->distCoeff1,
-        params->R1,
-        params->P1,
-        params->size,
-        CV_32FC1,
-        params->rmap[0][0],
-        params->rmap[0][1]
-    );
-
-    cv::initUndistortRectifyMap(
-        params->cameraMatrix2,
-        params->distCoeff2,
-        params->R2,
-        params->P2,
-        params->size,
-        CV_32FC1,
-        params->rmap[1][0],
-        params->rmap[1][1]
-    );
+    for (int cam = 0; cam < 2; cam++) {
+        cv::initUndistortRectifyMap(
+            params->cameraMatrix[cam], params->distCoeffs[cam],
+            params->rotation[cam], params->projection[cam],
+            params->size,
+            CV_32FC1,
+            params->map[cam][0], params->map[cam][1]
+        );
+    }
 
     return params;
 }
@@ -218,37 +186,49 @@ int main(int argc, char **argv) {
     std::vector<Corners> imagePoints1 = getCornersSamples(CAMERA_1);
     std::vector<Corners> imagePoints2 = getCornersSamples(CAMERA_2);
 
-    CameraParameters *params = getParameters(imagePoints1, imagePoints2);
+    StereoParameters *params = getParameters(imagePoints1, imagePoints2);
 
-    cv::Mat canvas;
-    double sf;
-    int w, h;
+    if (argc == 2) {
+        cv::FileStorage fs(argv[1], cv::FileStorage::WRITE);
 
-    sf = 600./MAX(params->size.width, params->size.height);
-    w = (int)(params->size.width*sf);
-    h = (int)(params->size.height*sf);
-    canvas.create(h, w*2, CV_8UC3);
+        if (!fs.isOpened()) {
+            error("Error opening destination file");
+        }
+
+        fs << "Map00" << params->map[0][0];
+        fs << "Map01" << params->map[0][1];
+        fs << "Map10" << params->map[1][0];
+        fs << "Map11" << params->map[1][1];
+    }
+
+    // cv::Mat canvas;
+    // double sf;
+    // int w, h;
+    // sf = 600./MAX(params->size.width, params->size.height);
+    // w = (int)(params->size.width*sf);
+    // h = (int)(params->size.height*sf);
+    // canvas.create(h, w*2, CV_8UC3);
 
     cv::VideoCapture caps[2];
 
-    caps[0] = cv::VideoCapture(CAMERA_1);
-    caps[1] = cv::VideoCapture(CAMERA_2);
+    caps[CAMERA_1] = cv::VideoCapture(CAMERA_1 + 1);
+    caps[CAMERA_2] = cv::VideoCapture(CAMERA_2 + 1);
 
-    caps[0].set(CV_CAP_PROP_FPS, FRAMES_PER_SECOND);
-    caps[1].set(CV_CAP_PROP_FPS, FRAMES_PER_SECOND);
+    caps[CAMERA_1].set(CV_CAP_PROP_FPS, FRAMES_PER_SECOND);
+    caps[CAMERA_2].set(CV_CAP_PROP_FPS, FRAMES_PER_SECOND);
 
-    int k, j;
+    cv::namedWindow("Camera0", CV_WINDOW_AUTOSIZE);
+    cv::namedWindow("Camera1", CV_WINDOW_AUTOSIZE);
 
     while (true) {
+        cv::Mat img, rimg;
 
-        cv::Mat img, rimg, cimg;
-
-        for( k = 0; k < 2; k++ ) {
-            bool success = caps[k].read(img);
-            cv::remap(img, rimg, params->rmap[k][0], params->rmap[k][1], cv::INTER_LINEAR);
-            cv::Mat canvasPart = canvas(cv::Rect(w*k, 0, w, h));
-            cv::resize(rimg, canvasPart, canvasPart.size(), 0, 0, cv::INTER_AREA);
-
+        for (int cam = 0; cam < 2; cam++) {
+            caps[cam].read(img);
+            cv::remap(img, rimg, params->map[cam][0], params->map[cam][1], cv::INTER_LINEAR);
+            cv::imshow("Camera" + std::to_string(cam), rimg);
+            // cv::Mat canvasPart = canvas(cv::Rect(w*cam, 0, w, h));
+            // cv::resize(rimg, canvasPart, canvasPart.size(), 0, 0, cv::INTER_AREA);
             // if (useCalibrated) {
             //     Rect vroi(cvRound(validRoi[k].x*sf), cvRound(validRoi[k].y*sf),
             //               cvRound(validRoi[k].width*sf), cvRound(validRoi[k].height*sf));
@@ -256,27 +236,17 @@ int main(int argc, char **argv) {
             // }
         }
 
-        for (j = 0; j < canvas.rows; j += 16) {
-            cv::line(canvas, cv::Point(0, j), cv::Point(canvas.cols, j), cv::Scalar(0, 255, 0), 1, 8);
-        }
+        // for (int j = 0; j < canvas.rows; j += 16) {
+        //     cv::line(canvas, cv::Point(0, j), cv::Point(canvas.cols, j), cv::Scalar(0, 255, 0), 1, 8);
+        // }
 
-        cv::imshow("rectified", canvas);
+        // cv::imshow("rectified", canvas);
 
         char c = (char)cv::waitKey(30);
         if (c == 27 || c == 'q' || c == 'Q') {
             break;
         }
     }
-
-    // // Save intrinsic parameters
-    // cv::FileStorage fs(argv[2], cv::FileStorage::WRITE);
-    //
-    // if (!fs.isOpened()) {
-    //     error("Error opening destination file");
-    // }
-    //
-    // fs << "Camera_Matrix" << params.first;
-    // fs << "Distortion_Coefficients" << params.second;
 
     delete params;
 }
