@@ -135,7 +135,7 @@ std::vector<Corners> getCornersSamples(size_t index) {
 
 CameraParameters *getParameters(std::vector<Corners> imagePoints1, std::vector<Corners> imagePoints2) {
 
-    cv::Size numSquares(NUM_HOR_SQUARES, NUM_VER_SQUARES);
+    CameraParameters *params = new CameraParameters();
 
     // Corner positions in the board space
     std::vector<cv::Point3f> corners;
@@ -146,10 +146,9 @@ CameraParameters *getParameters(std::vector<Corners> imagePoints1, std::vector<C
         }
     }
 
-    // Calibrate
     std::vector<std::vector<cv::Point3f> > objectPoints(imagePoints1.size(), corners);
-    CameraParameters *params = new CameraParameters();
 
+    // Calibrate
     double rms = cv::stereoCalibrate(
         objectPoints,
         imagePoints1,
@@ -195,7 +194,7 @@ CameraParameters *getParameters(std::vector<Corners> imagePoints1, std::vector<C
         params->R1,
         params->P1,
         params->size,
-        CV_16SC2,
+        CV_32FC1,
         params->rmap[0][0],
         params->rmap[0][1]
     );
@@ -206,7 +205,7 @@ CameraParameters *getParameters(std::vector<Corners> imagePoints1, std::vector<C
         params->R2,
         params->P2,
         params->size,
-        CV_16SC2,
+        CV_32FC1,
         params->rmap[1][0],
         params->rmap[1][1]
     );
@@ -240,8 +239,8 @@ int main(int argc, char **argv) {
 
     int k, j;
 
-    while(1)
-    {
+    while (true) {
+
         cv::Mat img, rimg, cimg;
 
         for( k = 0; k < 2; k++ ) {
@@ -250,22 +249,21 @@ int main(int argc, char **argv) {
             cv::Mat canvasPart = canvas(cv::Rect(w*k, 0, w, h));
             cv::resize(rimg, canvasPart, canvasPart.size(), 0, 0, cv::INTER_AREA);
 
-            /**
-            if( useCalibrated ) {
-                Rect vroi(cvRound(validRoi[k].x*sf), cvRound(validRoi[k].y*sf),
-                          cvRound(validRoi[k].width*sf), cvRound(validRoi[k].height*sf));
-                rectangle(canvasPart, vroi, Scalar(0,0,255), 3, 8);
-            }
-            */
+            // if (useCalibrated) {
+            //     Rect vroi(cvRound(validRoi[k].x*sf), cvRound(validRoi[k].y*sf),
+            //               cvRound(validRoi[k].width*sf), cvRound(validRoi[k].height*sf));
+            //     rectangle(canvasPart, vroi, Scalar(0,0,255), 3, 8);
+            // }
         }
 
-        for( j = 0; j < canvas.rows; j += 16 ) {
+        for (j = 0; j < canvas.rows; j += 16) {
             cv::line(canvas, cv::Point(0, j), cv::Point(canvas.cols, j), cv::Scalar(0, 255, 0), 1, 8);
         }
 
         cv::imshow("rectified", canvas);
+
         char c = (char)cv::waitKey(30);
-        if( c == 27 || c == 'q' || c == 'Q' ) {
+        if (c == 27 || c == 'q' || c == 'Q') {
             break;
         }
     }
@@ -279,5 +277,6 @@ int main(int argc, char **argv) {
     //
     // fs << "Camera_Matrix" << params.first;
     // fs << "Distortion_Coefficients" << params.second;
+
     delete params;
 }
