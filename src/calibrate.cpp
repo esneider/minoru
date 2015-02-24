@@ -44,7 +44,7 @@ std::vector<Corners> getCornersSamples(size_t index) {
             frame,
             numSquares,
             corners,
-            CV_CALIB_CB_ADAPTIVE_THRESH | CV_CALIB_CB_FAST_CHECK | CV_CALIB_CB_NORMALIZE_IMAGE
+            CV_CALIB_CB_ADAPTIVE_THRESH | CV_CALIB_CB_NORMALIZE_IMAGE
         );
 
         // Improve coordinate accuracy
@@ -110,7 +110,7 @@ StereoParameters *getParameters(std::vector<Corners> imagePoints1, std::vector<C
         params->E,
         params->F,
         cv::TermCriteria(CV_TERMCRIT_EPS | CV_TERMCRIT_ITER, 30, 1e-6),
-        CV_CALIB_RATIONAL_MODEL | CV_CALIB_FIX_K4 | CV_CALIB_FIX_K5
+        CV_CALIB_USE_INTRINSIC_GUESS | CV_CALIB_RATIONAL_MODEL | CV_CALIB_USE_INTRINSIC_GUESS | CV_CALIB_FIX_PRINCIPAL_POINT
     );
 
     std::cout << "RMS = " << rms << std::endl;
