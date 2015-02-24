@@ -11,7 +11,7 @@
 int main(int argc, char **argv) {
 
     StereoParameters params;
-    cv::FileStorage fs(argc == 2 ? argv[1] : PARAMS_FILE, cv::FileStorage::WRITE);
+    cv::FileStorage fs(argc == 2 ? argv[1] : PARAMS_FILE, cv::FileStorage::READ);
     fs >> params;
 
     // cv::Mat canvas;
