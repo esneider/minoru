@@ -13,27 +13,36 @@ void printHSV(cv::Mat_<float> &disparity, const char *window) {
 
     cv::Mat_<cv::Vec3b> depthImg(disparity.size());
 
+    float m, M = 1f, 0f;
+
     for (uint j = 0; j < (uint)disparity.cols; j++) {
         for (uint i = 0; i < (uint)disparity.rows; i++) {
 
-            float val = std::min(disparity.at<float>(i,j) * 0.01f, 1.0f);
+            float depth = disparity.at<float>(i, j);
+
+            if (depth < m) m = depth;
+            if (depth > M) M = depth;
+
+            float val = std::min(M * 0.01f, 1.0f);
             float h2 = 6.0f * (1.0f - val);
             uint8_t x = (1.0f - std::fabs(std::fmod(h2, 2.0f) - 1.0f)) * 255;
 
             cv::Vec3b v;
 
-                 if (val <= 0)          { v[0] = 322; v[1] = 100; v[2] = 100; } // pink
+                 if (val <= 0)          { v[0] = 322; v[1] = 100; v[2] = 100; }
             else if (0 <= h2 && h2 < 1) { v[0] = 255; v[1] = x;   v[2] = 0;   }
             else if (1 <= h2 && h2 < 2) { v[0] = x;   v[1] = 255; v[2] = 0;   }
             else if (2 <= h2 && h2 < 3) { v[0] = 0;   v[1] = 255; v[2] = x;   }
             else if (3 <= h2 && h2 < 4) { v[0] = 0;   v[1] = x;   v[2] = 255; }
             else if (4 <= h2 && h2 < 5) { v[0] = x;   v[1] = 0;   v[2] = 255; }
             else if (5 <= h2 && h2 < 6) { v[0] = 255; v[1] = 0;   v[2] = x;   }
-            else                        { v[0] = 174; v[1] = 100; v[2] = 100; } // turquoise
+            else                        { v[0] = 255; v[1] = 255; v[2] = 255; }
 
             depthImg.at<cv::Vec3b>(i, j) = v;
         }
     }
+
+    std::cout << m << " " << M << std::endl;
 
     cv::namedWindow(window, CV_WINDOW_AUTOSIZE);
     cv::imshow(window, depthImg);
