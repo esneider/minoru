@@ -13,7 +13,8 @@ void printHSV(cv::Mat_<float> &disparity, const char *window) {
 
     cv::Mat_<cv::Vec3b> depthImg(disparity.size());
 
-    float m, M = 1f, 0f;
+    float m = 1.0f;
+    float M = 0.0f;
 
     for (uint j = 0; j < (uint)disparity.cols; j++) {
         for (uint i = 0; i < (uint)disparity.rows; i++) {
@@ -29,7 +30,7 @@ void printHSV(cv::Mat_<float> &disparity, const char *window) {
 
             cv::Vec3b v;
 
-                 if (val <= 0)          { v[0] = 322; v[1] = 100; v[2] = 100; }
+                 if (val <= 0)          { v[0] = 255; v[1] = 100; v[2] = 100; }
             else if (0 <= h2 && h2 < 1) { v[0] = 255; v[1] = x;   v[2] = 0;   }
             else if (1 <= h2 && h2 < 2) { v[0] = x;   v[1] = 255; v[2] = 0;   }
             else if (2 <= h2 && h2 < 3) { v[0] = 0;   v[1] = 255; v[2] = x;   }
