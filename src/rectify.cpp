@@ -9,35 +9,34 @@
 #include "stereo.h"
 
 
-//function to show disparity map with HSV color
+void printHSV(cv::Mat_<float> &disparity, const char *window) {
 
-void printHSV(cv::Mat_<float>& disparityData, const char* windowName) {
-  cv::Mat_<cv::Vec3b> disparity_data_color(disparityData.size());
-  for (uint j = 0; j < (uint)disparityData.cols; j++) {
-    for (uint i = 0; i < (uint)disparityData.rows; i++) {
-      cv::Vec3b v;
+    cv::Mat_<cv::Vec3b> depthImg(disparity.size());
 
-      float val = std::min(disparityData.at<float>(i,j) * 0.01f, 1.0f);
-      if (val <= 0) {
-        v[0] = v[1] = v[2] = 0;
-      } else {
-        float h2 = 6.0f * (1.0f - val);
-        unsigned char x  = (unsigned char)((1.0f - fabs(fmod(h2, 2.0f) - 1.0f))*255);
-        if (0 <= h2&&h2<1) { v[0] = 255; v[1] = x; v[2] = 0; }
-        else if (1 <= h2 && h2 < 2)  { v[0] = x; v[1] = 255; v[2] = 0; }
-        else if (2 <= h2 && h2 < 3)  { v[0] = 0; v[1] = 255; v[2] = x; }
-        else if (3 <= h2 && h2 < 4)  { v[0] = 0; v[1] = x; v[2] = 255; }
-        else if (4 <= h2 && h2 < 5)  { v[0] = x; v[1] = 0; v[2] = 255; }
-        else if (5 <= h2 && h2 <= 6) { v[0] = 255; v[1] = 0; v[2] = x; }
-      }
+    for (uint j = 0; j < (uint)disparity.cols; j++) {
+        for (uint i = 0; i < (uint)disparity.rows; i++) {
 
-      disparity_data_color.at<cv::Vec3b>(i, j) = v;
+            float val = std::min(disparity.at<float>(i,j) * 0.01f, 1.0f);
+            float h2 = 6.0f * (1.0f - val);
+            uint8_t x = (1.0f - std::fabs(std::fmod(h2, 2.0f) - 1.0f)) * 255;
+
+            cv::Vec3b v;
+
+                 if (val <= 0)          { v[0] = 322; v[1] = 100; v[2] = 100; } // pink
+            else if (0 <= h2 && h2 < 1) { v[0] = 255; v[1] = x;   v[2] = 0;   }
+            else if (1 <= h2 && h2 < 2) { v[0] = x;   v[1] = 255; v[2] = 0;   }
+            else if (2 <= h2 && h2 < 3) { v[0] = 0;   v[1] = 255; v[2] = x;   }
+            else if (3 <= h2 && h2 < 4) { v[0] = 0;   v[1] = x;   v[2] = 255; }
+            else if (4 <= h2 && h2 < 5) { v[0] = x;   v[1] = 0;   v[2] = 255; }
+            else if (5 <= h2 && h2 < 6) { v[0] = 255; v[1] = 0;   v[2] = x;   }
+            else                        { v[0] = 174; v[1] = 100; v[2] = 100; } // turquoise
+
+            depthImg.at<cv::Vec3b>(i, j) = v;
+        }
     }
-  }
 
-  // Create Window
-  cv::namedWindow(windowName, CV_WINDOW_AUTOSIZE);
-  cv::imshow(windowName, disparity_data_color);
+    cv::namedWindow(window, CV_WINDOW_AUTOSIZE);
+    cv::imshow(window, depthImg);
 }
 
 
@@ -63,8 +62,8 @@ int main(int argc, char **argv) {
 
     int32_t dims[] = {FRAME_WIDTH, FRAME_HEIGHT, FRAME_WIDTH};
     cv::Mat_<float> disparity[2] = {
-        cv::Mat_<float>(FRAME_WIDTH, FRAME_HEIGHT),
-        cv::Mat_<float>(FRAME_WIDTH, FRAME_HEIGHT)
+        cv::Mat_<float>(FRAME_HEIGHT, FRAME_WIDTH),
+        cv::Mat_<float>(FRAME_HEIGHT, FRAME_WIDTH)
     };
 
     cv::Mat img[2];
@@ -96,8 +95,9 @@ int main(int argc, char **argv) {
             rimg[CAMERA_2].data,
             (float*)disparity[CAMERA_1].data,
             (float*)disparity[CAMERA_2].data,
-            dims);
-        
+            dims
+        );
+
 		printHSV(disparity[CAMERA_1], "Disparity Right Camera");
         printHSV(disparity[CAMERA_2], "Disparity Left Camera");
 
