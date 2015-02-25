@@ -36,7 +36,7 @@ void printHSV(cv::Mat_<float>& disparityData, const char* windowName) {
   }
 
   // Create Window
-  cv::namedWindow(windowName, 1);
+  cv::namedWindow(windowName, CV_WINDOW_AUTOSIZE);
   cv::imshow(windowName, disparity_data_color);
 }
 
@@ -75,8 +75,8 @@ int main(int argc, char **argv) {
 
         for (int cam = 0; cam < 2; cam++) {
             caps[cam].read(img[cam]);
-            cv::remap(img[cam], rimg[cam], params.map[cam][0], params.map[cam][1], cv::INTER_LINEAR);
-            cv::cvtColor(rimg[cam], gimg[cam], CV_BGR2GRAY);
+            cv::cvtColor(img[cam], gimg[cam], CV_BGR2GRAY);
+            cv::remap(gimg[cam], rimg[cam], params.map[cam][0], params.map[cam][1], cv::INTER_LINEAR);
             cv::imshow("Camera" + std::to_string(cam), rimg[cam]);
         }
 
@@ -91,14 +91,14 @@ int main(int argc, char **argv) {
         //               otherwise width/2 x height/2 (rounded towards zero)
         // void process (uint8_t* I1,uint8_t* I2,float* D1,float* D2,const int32_t* dims);
 
-        elas.process(
-            gimg[CAMERA_1].data,
-            gimg[CAMERA_2].data,
+		elas.process(
+            rimg[CAMERA_1].data,
+            rimg[CAMERA_2].data,
             (float*)disparity[CAMERA_1].data,
             (float*)disparity[CAMERA_2].data,
             dims);
-
-        printHSV(disparity[CAMERA_1], "Disparity Right Camera");
+        
+		printHSV(disparity[CAMERA_1], "Disparity Right Camera");
         printHSV(disparity[CAMERA_2], "Disparity Left Camera");
 
         char c = (char)cv::waitKey(30);
