@@ -16,19 +16,19 @@ void printHSV(cv::Mat_<float> &disparity, const char *window) {
     for (uint j = 0; j < (uint)disparity.cols; j++) {
         for (uint i = 0; i < (uint)disparity.rows; i++) {
 
-            float depth = disparity.at<float>(i, j) / 256.0f;
-            float h2 = 6.0f * (1.0f - val);
+            float depth = std::min(disparity.at<float>(i, j) * 0.01f, 1.0f);
+            float h2 = 6.0f * (1.0f - depth);
             uint8_t x = (1.0f - std::fabs(std::fmod(h2, 2.0f) - 1.0f)) * 256;
 
             cv::Vec3b v;
 
-                 if (val <= 0)          { v[0] = 0;   v[1] = 0;   v[2] = 0;   }
-            else if (0 <= h2 && h2 < 1) { v[0] = 255; v[1] = x;   v[2] = 0;   }
-            else if (1 <= h2 && h2 < 2) { v[0] = x;   v[1] = 255; v[2] = 0;   }
-            else if (2 <= h2 && h2 < 3) { v[0] = 0;   v[1] = 255; v[2] = x;   }
-            else if (3 <= h2 && h2 < 4) { v[0] = 0;   v[1] = x;   v[2] = 255; }
-            else if (4 <= h2 && h2 < 5) { v[0] = x;   v[1] = 0;   v[2] = 255; }
-            else if (5 <= h2 && h2 < 6) { v[0] = 255; v[1] = 0;   v[2] = x;   }
+            if (depth <= 0)  { v[0] = 0;   v[1] = 0;   v[2] = 0;   }
+            else if (h2 < 1) { v[0] = 255; v[1] = x;   v[2] = 0;   }
+            else if (h2 < 2) { v[0] = x;   v[1] = 255; v[2] = 0;   }
+            else if (h2 < 3) { v[0] = 0;   v[1] = 255; v[2] = x;   }
+            else if (h2 < 4) { v[0] = 0;   v[1] = x;   v[2] = 255; }
+            else if (h2 < 5) { v[0] = x;   v[1] = 0;   v[2] = 255; }
+            else             { v[0] = 255; v[1] = 0;   v[2] = x;   }
 
             depthImg.at<cv::Vec3b>(i, j) = v;
         }
