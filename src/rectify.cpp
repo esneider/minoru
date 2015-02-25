@@ -9,6 +9,38 @@
 #include "stereo.h"
 
 
+//function to show disparity map with HSV color
+
+void printHSV(cv::Mat_<float>& disparityData, const char* windowName) {
+  cv::Mat_<cv::Vec3b> disparity_data_color(disparityData.size());
+  for (uint j = 0; j < (uint)disparityData.cols; j++) {
+    for (uint i = 0; i < (uint)disparityData.rows; i++) {
+      cv::Vec3b v;
+
+      float val = std::min(disparityData.at<float>(i,j) * 0.01f, 1.0f);
+      if (val <= 0) {
+        v[0] = v[1] = v[2] = 0;
+      } else {
+        float h2 = 6.0f * (1.0f - val);
+        unsigned char x  = (unsigned char)((1.0f - fabs(fmod(h2, 2.0f) - 1.0f))*255);
+        if (0 <= h2&&h2<1) { v[0] = 255; v[1] = x; v[2] = 0; }
+        else if (1 <= h2 && h2 < 2)  { v[0] = x; v[1] = 255; v[2] = 0; }
+        else if (2 <= h2 && h2 < 3)  { v[0] = 0; v[1] = 255; v[2] = x; }
+        else if (3 <= h2 && h2 < 4)  { v[0] = 0; v[1] = x; v[2] = 255; }
+        else if (4 <= h2 && h2 < 5)  { v[0] = x; v[1] = 0; v[2] = 255; }
+        else if (5 <= h2 && h2 <= 6) { v[0] = 255; v[1] = 0; v[2] = x; }
+      }
+
+      disparity_data_color.at<cv::Vec3b>(i, j) = v;
+    }
+  }
+
+  // Create Window
+  cv::namedWindow(windowName, 1);
+  cv::imshow(windowName, disparity_data_color);
+}
+
+
 int main(int argc, char **argv) {
 
     cv::VideoCapture caps[2];
@@ -22,23 +54,29 @@ int main(int argc, char **argv) {
     cv::namedWindow("Camera0", CV_WINDOW_AUTOSIZE);
     cv::namedWindow("Camera1", CV_WINDOW_AUTOSIZE);
 
-    Elas::parameters elasParams;
-    Elas elas(elasParams);
-
     StereoParameters params;
     cv::FileStorage fs(argc == 2 ? argv[1] : PARAMS_FILE, cv::FileStorage::READ);
     fs >> params;
 
-    while (true) {
+    Elas::parameters elasParams;
+    Elas elas(elasParams);
 
-        cv::Mat img[2], gimg[2], rimg[2];
-        float disparity[2][FRAME_HEIGHT][FRAME_WIDTH];
-        int32_t dims[] = {FRAME_WIDTH, FRAME_HEIGHT, FRAME_WIDTH};
+    int32_t dims[] = {FRAME_WIDTH, FRAME_HEIGHT, FRAME_WIDTH};
+    cv::Mat_<float> disparity[2] = {
+        cv::Mat_<float>(FRAME_WIDTH, FRAME_HEIGHT),
+        cv::Mat_<float>(FRAME_WIDTH, FRAME_HEIGHT)
+    };
+
+    cv::Mat img[2];
+    cv::Mat_<uint8_t> gimg[2];
+    cv::Mat_<uint8_t> rimg[2];
+
+    while (true) {
 
         for (int cam = 0; cam < 2; cam++) {
             caps[cam].read(img[cam]);
-            cv::cvtColor(img[cam], gimg[cam], CV_BGR2GRAY);
-            cv::remap(gimg[cam], rimg[cam], params.map[cam][0], params.map[cam][1], cv::INTER_LINEAR);
+            cv::remap(img[cam], rimg[cam], params.map[cam][0], params.map[cam][1], cv::INTER_LINEAR);
+            cv::cvtColor(rimg[cam], gimg[cam], CV_BGR2GRAY);
             cv::imshow("Camera" + std::to_string(cam), rimg[cam]);
         }
 
@@ -54,11 +92,14 @@ int main(int argc, char **argv) {
         // void process (uint8_t* I1,uint8_t* I2,float* D1,float* D2,const int32_t* dims);
 
         elas.process(
-            (uint8_t*)rimg[CAMERA_1].data,
-            (uint8_t*)rimg[CAMERA_2].data,
-            (float*)disparity[CAMERA_1],
-            (float*)disparity[CAMERA_2],
+            gimg[CAMERA_1].data,
+            gimg[CAMERA_2].data,
+            (float*)disparity[CAMERA_1].data,
+            (float*)disparity[CAMERA_2].data,
             dims);
+
+        printHSV(disparity[CAMERA_1], "Disparity Right Camera");
+        printHSV(disparity[CAMERA_2], "Disparity Left Camera");
 
         char c = (char)cv::waitKey(30);
         if (c == 27) {
