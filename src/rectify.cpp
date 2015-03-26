@@ -5,6 +5,7 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/calib3d/calib3d.hpp>
 #include <opencv2/highgui/highgui.hpp>
+#include <opencv2/contrib/contrib.hpp>
 #include "elas/elas.h"
 #include "stereo.h"
 
@@ -85,6 +86,7 @@ int main(int argc, char **argv) {
         // };
 
         cv::StereoSGBM sgbm;
+
         sgbm.SADWindowSize = 5;
         sgbm.numberOfDisparities = 192;
         sgbm.preFilterCap = 4;
@@ -100,6 +102,7 @@ int main(int argc, char **argv) {
         cv::sgbm(rimg[CAMERA_1], rimg[CAMERA_2], disparity[CAMERA_1]);
 
         // cv::StereoBM sbm;
+        //
         // sbm.state->SADWindowSize = 9;
         // sbm.state->numberOfDisparities = 112;
         // sbm.state->preFilterSize = 5;
