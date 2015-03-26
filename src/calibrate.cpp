@@ -134,13 +134,16 @@ StereoParameters *getParameters(std::vector<Corners> imagePoints1, std::vector<C
         params->size
     );
 
+    cv::Mat rot = params->rotation[CAMERA_1].t();
+    cv::Mat trans = -params->projection[CAMERA_1];
+
     // Compute rectification maps
     for (int cam = 0; cam < 2; cam++) {
         cv::initUndistortRectifyMap(
             params->cameraMatrix[cam],
             params->distCoeffs[cam],
-            params->rotation[cam],
-            params->projection[cam],
+            params->rotation[cam] * rot,
+            params->projection[cam] + trans,
             params->size,
             CV_32FC1,
             params->map[cam][0],
