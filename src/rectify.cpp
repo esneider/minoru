@@ -39,6 +39,80 @@ void printHSV(cv::Mat_<float> &disparity, const char *window) {
 }
 
 
+cv::Mat_<uint8_t> SBMDisparityMap(cv::Mat_<uint8_t> img[2]) {
+
+    cv::Mat disp;
+    cv::Mat_<uint8_t> disp8;
+    cv::StereoSBM sbm;
+
+    sbm.state->SADWindowSize = 9;
+    sbm.state->numberOfDisparities = 112;
+    sbm.state->preFilterSize = 5;
+    sbm.state->preFilterCap = 61;
+    sbm.state->minDisparity = -39;
+    sbm.state->textureThreshold = 507;
+    sbm.state->uniquenessRatio = 0;
+    sbm.state->speckleWindowSize = 0;
+    sbm.state->speckleRange = 8;
+    sbm.state->disp12MaxDiff = 1;
+
+    sbm(img[CAMERA_1], img[CAMERA_2], disp);
+    cv::normalize(disp, disp8, 0, 255, CV_MINMAX, CV_8U);
+
+    return disp8;
+}
+
+
+cv::Mat_<uint8_t> SGBMDisparityMap(cv::Mat_<uint8_t> img[2]) {
+
+    cv::Mat disp;
+    cv::Mat_<uint8_t> disp8;
+    cv::StereoSGBM sgbm;
+
+    sgbm.SADWindowSize = 5;
+    sgbm.numberOfDisparities = 192;
+    sgbm.preFilterCap = 4;
+    sgbm.minDisparity = -64;
+    sgbm.uniquenessRatio = 1;
+    sgbm.speckleWindowSize = 150;
+    sgbm.speckleRange = 2;
+    sgbm.disp12MaxDiff = 10;
+    sgbm.fullDP = false;
+    sgbm.P1 = 600;
+    sgbm.P2 = 2400;
+
+    sgbm(img[CAMERA_1], img[CAMERA_2], disp);
+    cv::normalize(disp, disp8, 0, 255, CV_MINMAX, CV_8U);
+
+    return disp8;
+}
+
+
+cv::Mat_<uint8_t> ElasDisparityMap(cv::Mat_<uint8_t> img[2]) {
+
+    cv::Mat disp;
+    cv::Mat_<uint8_t> disp8;
+    cv::StereoSGBM sgbm;
+
+    int32_t dims[] = {FRAME_WIDTH, FRAME_HEIGHT, FRAME_WIDTH};
+    cv::Mat_<float> disp1 = cv::Mat_<float>(FRAME_HEIGHT, FRAME_WIDTH);
+    cv::Mat_<float> disp2 = cv::Mat_<float>(FRAME_HEIGHT, FRAME_WIDTH);
+    cv::Mat_<uint8_t> disp8;
+
+    elas.process(
+        img[CAMERA_1].data,
+        img[CAMERA_2].data,
+        (float*)disp1.data,
+        (float*)disp2.data,
+        dims
+    );
+
+    cv::normalize(disp1, disp8, 0, 255, CV_MINMAX, CV_8U);
+
+    return disp8;
+}
+
+
 int main(int argc, char **argv) {
 
     cv::VideoCapture caps[2];
@@ -59,15 +133,12 @@ int main(int argc, char **argv) {
     Elas::parameters elasParams;
     Elas elas(elasParams);
 
-    int32_t dims[] = {FRAME_WIDTH, FRAME_HEIGHT, FRAME_WIDTH};
-    cv::Mat_<float> disparity[2] = {
-        cv::Mat_<float>(FRAME_HEIGHT, FRAME_WIDTH),
-        cv::Mat_<float>(FRAME_HEIGHT, FRAME_WIDTH)
-    };
-
     cv::Mat img[2];
     cv::Mat_<uint8_t> gimg[2];
     cv::Mat_<uint8_t> rimg[2];
+    cv::Mat_<uint8_t> disparity;
+
+    char method = 'a';
 
     while (true) {
 
@@ -78,57 +149,17 @@ int main(int argc, char **argv) {
             cv::imshow("Camera" + std::to_string(cam), rimg[cam]);
         }
 
-        // cv::Mat_<uint8_t> rimg[2];
-        // cv::Mat_<float> disparity[2] = {
-        //     cv::Mat_<float>(FRAME_HEIGHT, FRAME_WIDTH),
-        //     cv::Mat_<float>(FRAME_HEIGHT, FRAME_WIDTH)
-        // };
 
-        cv::StereoSGBM sgbm;
+        if (method == 'a') disparity = SBMDisparityMap(rimg);
+        if (method == 's') disparity = SGBMDisparityMap(rimg);
+        if (method == 'd') disparity = ElasDisparityMap(rimg);
 
-        sgbm.SADWindowSize = 5;
-        sgbm.numberOfDisparities = 192;
-        sgbm.preFilterCap = 4;
-        sgbm.minDisparity = -64;
-        sgbm.uniquenessRatio = 1;
-        sgbm.speckleWindowSize = 150;
-        sgbm.speckleRange = 2;
-        sgbm.disp12MaxDiff = 10;
-        sgbm.fullDP = false;
-        sgbm.P1 = 600;
-        sgbm.P2 = 2400;
+        cv::imshow("Disparity Map", disparity);
 
-        sgbm(rimg[CAMERA_1], rimg[CAMERA_2], disparity[CAMERA_1]);
-
-        // cv::StereoBM sbm;
-        //
-        // sbm.state->SADWindowSize = 9;
-        // sbm.state->numberOfDisparities = 112;
-        // sbm.state->preFilterSize = 5;
-        // sbm.state->preFilterCap = 61;
-        // sbm.state->minDisparity = -39;
-        // sbm.state->textureThreshold = 507;
-        // sbm.state->uniquenessRatio = 0;
-        // sbm.state->speckleWindowSize = 0;
-        // sbm.state->speckleRange = 8;
-        // sbm.state->disp12MaxDiff = 1;
-        //
-        // sbm(rimg[CAMERA_1], rimg[CAMERA_2], disparity[CAMERA_1]);
-        //
-        // elas.process(
-        //     rimg[CAMERA_1].data,
-        //     rimg[CAMERA_2].data,
-        //     (float*)disparity[CAMERA_1].data,
-        //     (float*)disparity[CAMERA_2].data,
-        //     dims
-        // );
-
-        printHSV(disparity[CAMERA_1], "Disparity Camera0");
-        printHSV(disparity[CAMERA_2], "Disparity Camera1");
+        // printHSV(disparity, "Disparity Map");
 
         char c = (char)cv::waitKey(30);
-        if (c == 27) {
-            break;
-        }
+        if (c == 27) break;
+        if (c == 'a' || c == 's' || c == 'd') method = c;
     }
 }
