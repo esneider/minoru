@@ -5,7 +5,6 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/calib3d/calib3d.hpp>
 #include <opencv2/highgui/highgui.hpp>
-#include <opencv2/contrib/contrib.hpp>
 #include "elas/elas.h"
 #include "stereo.h"
 
@@ -99,7 +98,7 @@ int main(int argc, char **argv) {
         sgbm.P1 = 600;
         sgbm.P2 = 2400;
 
-        cv::sgbm(rimg[CAMERA_1], rimg[CAMERA_2], disparity[CAMERA_1]);
+        sgbm(rimg[CAMERA_1], rimg[CAMERA_2], disparity[CAMERA_1]);
 
         // cv::StereoBM sbm;
         //
@@ -114,7 +113,7 @@ int main(int argc, char **argv) {
         // sbm.state->speckleRange = 8;
         // sbm.state->disp12MaxDiff = 1;
         //
-        // cv::sbm(rimg[CAMERA_1], rimg[CAMERA_2], disparity[CAMERA_1]);
+        // sbm(rimg[CAMERA_1], rimg[CAMERA_2], disparity[CAMERA_1]);
         //
         // elas.process(
         //     rimg[CAMERA_1].data,
