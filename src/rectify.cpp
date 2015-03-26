@@ -78,15 +78,50 @@ int main(int argc, char **argv) {
             cv::imshow("Camera" + std::to_string(cam), rimg[cam]);
         }
 
-		elas.process(
-            rimg[CAMERA_1].data,
-            rimg[CAMERA_2].data,
-            (float*)disparity[CAMERA_1].data,
-            (float*)disparity[CAMERA_2].data,
-            dims
-        );
+        // cv::Mat_<uint8_t> rimg[2];
+        // cv::Mat_<float> disparity[2] = {
+        //     cv::Mat_<float>(FRAME_HEIGHT, FRAME_WIDTH),
+        //     cv::Mat_<float>(FRAME_HEIGHT, FRAME_WIDTH)
+        // };
 
-		printHSV(disparity[CAMERA_1], "Disparity Camera0");
+        cv::StereoSGBM sgbm;
+        sgbm.SADWindowSize = 5;
+        sgbm.numberOfDisparities = 192;
+        sgbm.preFilterCap = 4;
+        sgbm.minDisparity = -64;
+        sgbm.uniquenessRatio = 1;
+        sgbm.speckleWindowSize = 150;
+        sgbm.speckleRange = 2;
+        sgbm.disp12MaxDiff = 10;
+        sgbm.fullDP = false;
+        sgbm.P1 = 600;
+        sgbm.P2 = 2400;
+
+        cv::sgbm(rimg[CAMERA_1], rimg[CAMERA_2], disparity[CAMERA_1]);
+
+        // cv::StereoBM sbm;
+        // sbm.state->SADWindowSize = 9;
+        // sbm.state->numberOfDisparities = 112;
+        // sbm.state->preFilterSize = 5;
+        // sbm.state->preFilterCap = 61;
+        // sbm.state->minDisparity = -39;
+        // sbm.state->textureThreshold = 507;
+        // sbm.state->uniquenessRatio = 0;
+        // sbm.state->speckleWindowSize = 0;
+        // sbm.state->speckleRange = 8;
+        // sbm.state->disp12MaxDiff = 1;
+        //
+        // cv::sbm(rimg[CAMERA_1], rimg[CAMERA_2], disparity[CAMERA_1]);
+        //
+        // elas.process(
+        //     rimg[CAMERA_1].data,
+        //     rimg[CAMERA_2].data,
+        //     (float*)disparity[CAMERA_1].data,
+        //     (float*)disparity[CAMERA_2].data,
+        //     dims
+        // );
+
+        printHSV(disparity[CAMERA_1], "Disparity Camera0");
         printHSV(disparity[CAMERA_2], "Disparity Camera1");
 
         char c = (char)cv::waitKey(30);
