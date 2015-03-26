@@ -39,11 +39,11 @@ void printHSV(cv::Mat_<float> &disparity, const char *window) {
 }
 
 
-cv::Mat_<uint8_t> SBMDisparityMap(cv::Mat_<uint8_t> img[2]) {
+cv::Mat_<uint8_t> BMDisparityMap(cv::Mat_<uint8_t> img[2]) {
 
     cv::Mat disp;
     cv::Mat_<uint8_t> disp8;
-    cv::StereoSBM sbm;
+    cv::StereoBM sbm;
 
     sbm.state->SADWindowSize = 9;
     sbm.state->numberOfDisparities = 112;
@@ -90,9 +90,8 @@ cv::Mat_<uint8_t> SGBMDisparityMap(cv::Mat_<uint8_t> img[2]) {
 
 cv::Mat_<uint8_t> ElasDisparityMap(cv::Mat_<uint8_t> img[2]) {
 
-    cv::Mat disp;
-    cv::Mat_<uint8_t> disp8;
-    cv::StereoSGBM sgbm;
+    static Elas::parameters elasParams;
+    static Elas elas(elasParams);
 
     int32_t dims[] = {FRAME_WIDTH, FRAME_HEIGHT, FRAME_WIDTH};
     cv::Mat_<float> disp1 = cv::Mat_<float>(FRAME_HEIGHT, FRAME_WIDTH);
@@ -130,15 +129,12 @@ int main(int argc, char **argv) {
     cv::FileStorage fs(argc == 2 ? argv[1] : PARAMS_FILE, cv::FileStorage::READ);
     fs >> params;
 
-    Elas::parameters elasParams;
-    Elas elas(elasParams);
-
     cv::Mat img[2];
     cv::Mat_<uint8_t> gimg[2];
     cv::Mat_<uint8_t> rimg[2];
     cv::Mat_<uint8_t> disparity;
 
-    char method = 'a';
+    char method = 's';
 
     while (true) {
 
@@ -150,7 +146,7 @@ int main(int argc, char **argv) {
         }
 
 
-        if (method == 'a') disparity = SBMDisparityMap(rimg);
+        if (method == 'a') disparity = BMDisparityMap(rimg);
         if (method == 's') disparity = SGBMDisparityMap(rimg);
         if (method == 'd') disparity = ElasDisparityMap(rimg);
 
