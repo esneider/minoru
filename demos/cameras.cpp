@@ -4,6 +4,9 @@
 
 int main() {
 
+    static int index = 0;
+    static char str[100];
+
     cv::VideoCapture cap1(1);
     cv::VideoCapture cap2(2);
 
@@ -40,8 +43,13 @@ int main() {
 		int key = cv::waitKey(30);
 		if (key == 10) {
 			std::cout << "Enter pressed" << std::endl;
-			imwrite("testL.png", frame1);
-			imwrite("testR.png", frame2);
+
+            index++;
+            sprintf(str, "test_left_%d.png", index);
+			imwrite(str, frame1);
+
+            sprintf(str, "test_right_%d.png", index);
+			imwrite(str, frame2);
 		}
 
         if (key == 27) {
