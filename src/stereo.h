@@ -25,12 +25,18 @@ namespace pf {
     typedef cv::Mat_<uint8_t> Image;
 
     class Camera {
+        public:
+            virtual void capture(cv::Mat (&img)[2]) = 0;
+            virtual ~Camera() {}
+    };
+
+    class VideoCamera: public Camera {
 
         private:
             cv::VideoCapture caps[2];
 
         public:
-            Camera() {
+            VideoCamera() {
 
                 for (int cam = 0; cam < 2; cam++) {
                     caps[cam] = cv::VideoCapture(cam + 1);
@@ -48,6 +54,31 @@ namespace pf {
 
                 for (int cam = 0; cam < 2; cam++) {
                     caps[cam].read(img[cam]);
+                }
+            }
+    };
+
+    class ImageCamera: public Camera {
+
+        private:
+            unsigned index;
+            const char *format;
+
+        public:
+            ImageCamera(const char *format) {
+                this->format = format;
+                this->index = 0;
+            }
+
+            void capture(cv::Mat (&img)[2]) {
+
+                static const char *cameras[2] = {"left", "right"};
+                char path[128];
+                index++;
+
+                for (int cam = 0; cam < 2; cam++) {
+                    std::sprintf(path, format, cameras[cam], index);
+                    img[cam] = cv::imread(path, CV_LOAD_IMAGE_COLOR);
                 }
             }
     };
