@@ -1,87 +1,90 @@
-#include <vector>
-#include <iostream>
-#include <opencv2/opencv.hpp>
-#include <opencv2/core/core.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
-#include <opencv2/calib3d/calib3d.hpp>
-#include <opencv2/highgui/highgui.hpp>
-#include "elas/elas.h"
+#include <cstring>
+#include <cassert>
 #include "stereo.h"
 
 
-void printHSV(cv::Mat_<float> &disparity, const char *window) {
+struct Arguments {
 
-    cv::Mat_<cv::Vec3b> depthImg(disparity.size());
+    std::string paramsFile = PARAMS_FILE;
+    std::string imageFiles[2];
+    bool fromFile = false;
 
-    for (uint j = 0; j < (uint)disparity.cols; j++) {
-        for (uint i = 0; i < (uint)disparity.rows; i++) {
+    Arguments(int argc, char **argv) {
 
-            float depth = std::min(disparity.at<float>(i, j) * 0.01f, 1.0f);
-            float h2 = 6.0f * (1.0f - depth);
-            uint8_t x = (1.0f - std::fabs(std::fmod(h2, 2.0f) - 1.0f)) * 256;
+        for (int arg = 0; arg < argc; arg++) {
 
-            cv::Vec3b v;
+            if (strcmp("--params", argv[arg]) == 0) {
 
-            if (depth <= 0)  { v[0] = 0;   v[1] = 0;   v[2] = 0;   }
-            else if (h2 < 1) { v[0] = 255; v[1] = x;   v[2] = 0;   }
-            else if (h2 < 2) { v[0] = x;   v[1] = 255; v[2] = 0;   }
-            else if (h2 < 3) { v[0] = 0;   v[1] = 255; v[2] = x;   }
-            else if (h2 < 4) { v[0] = 0;   v[1] = x;   v[2] = 255; }
-            else if (h2 < 5) { v[0] = x;   v[1] = 0;   v[2] = 255; }
-            else             { v[0] = 255; v[1] = 0;   v[2] = x;   }
+                assert(++arg < argc);
+                paramsFile = argv[arg];
 
-            depthImg.at<cv::Vec3b>(i, j) = v;
+            } else if (strcmp("--images", argv[arg]) == 0) {
+
+                fromFile = true;
+
+                for (int cam = 0; cam < 2; cam++) {
+                    assert(++arg < argc);
+                    imageFiles[cam] = argv[arg];
+                }
+
+            } else {
+                std::cout << "Usage: rectify [--params file] [--images file_cam_1 file_cam_2]" << std::endl;
+            }
         }
     }
-
-    cv::namedWindow(window, CV_WINDOW_AUTOSIZE);
-    cv::imshow(window, depthImg);
-}
-
+};
 
 int main(int argc, char **argv) {
 
-    cv::VideoCapture caps[2];
+    // Setup windows
+    cv::namedWindow("Camera 0", CV_WINDOW_AUTOSIZE);
+    cv::namedWindow("Camera 1", CV_WINDOW_AUTOSIZE);
+    cv::namedWindow("Disparity Map", CV_WINDOW_AUTOSIZE);
 
-    caps[CAMERA_1] = cv::VideoCapture(CAMERA_1 + 1);
-    caps[CAMERA_2] = cv::VideoCapture(CAMERA_2 + 1);
+    // Parse command line arguments
+    Arguments args(argc - 1, argv + 1);
 
-    caps[CAMERA_1].set(CV_CAP_PROP_FPS, FRAMES_PER_SECOND);
-    caps[CAMERA_2].set(CV_CAP_PROP_FPS, FRAMES_PER_SECOND);
+    // Read camera parameters from file
+    pf::StereoParameters params = pf::StereoParameters::fromFile(args.paramsFile);
 
-    cv::namedWindow("Camera0", CV_WINDOW_AUTOSIZE);
-    cv::namedWindow("Camera1", CV_WINDOW_AUTOSIZE);
-
-    pf::StereoParameters params;
-    cv::FileStorage fs(argc == 2 ? argv[1] : PARAMS_FILE, cv::FileStorage::READ);
-    fs >> params;
-
+    // Setup camera / read images from file
+    pf::Camera *camera;
     cv::Mat img[2];
-    pf::Image gimg[2];
-    pf::Image rimg[2];
-    pf::Image disparity;
-    pf::DisparityMap *dm;
 
+    if (args.fromFile) {
+        for (int cam = 0; cam < 2; cam++) {
+            img[cam] = cv::imread(args.imageFiles[cam], CV_LOAD_IMAGE_COLOR);
+        }
+    } else {
+        camera = new pf::Camera();
+    }
+
+    // Event loop
     char method = 's';
 
     while (true) {
 
-        for (int cam = 0; cam < 2; cam++) {
-            caps[cam].read(img[cam]);
+        if (!args.fromFile) {
+            camera->capture(img);
         }
 
+        // Rectify captures
         pf::StereoCapture stereo(img, params.map);
         stereo.displayRectified();
+
+        // Compute disparity map
+        pf::DisparityMap *dm;
 
         if (method == 'a') dm = new pf::BM(stereo);
         if (method == 's') dm = new pf::SGBM(stereo);
         if (method == 'd') dm = new pf::ELAS(stereo);
 
         dm->displayMap();
-        // printHSV(dm->map, "Disparity Map");
+        // dm->displayHSV();
+
         delete dm;
 
-
+        // Read keys
         char c = (char)cv::waitKey(30);
         if (c == 27) break;
         if (c == 'a' || c == 's' || c == 'd') method = c;

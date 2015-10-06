@@ -5,19 +5,52 @@
 #include <opencv2/opencv.hpp>
 
 
+// StereoParameters file
 #define PARAMS_FILE "params.yml"
 
+// Camera properties
 #define FRAME_WIDTH 640
 #define FRAME_HEIGHT 480
 #define FRAMES_PER_SECOND 23
 
+// Camera constants
 #define CAMERA_1 0
 #define CAMERA_2 1
 
 
 namespace pf {
 
+    typedef std::vector<cv::Point2f> Corners;
+
     typedef cv::Mat_<uint8_t> Image;
+
+    class Camera {
+
+        private:
+            cv::VideoCapture caps[2];
+
+        public:
+            Camera() {
+
+                for (int cam = 0; cam < 2; cam++) {
+                    caps[cam] = cv::VideoCapture(cam + 1);
+
+                    if (!caps[cam].isOpened()) {
+                        std::cerr << "Can't open camera " << (cam + 1) << std::endl;
+                        return;
+                    }
+
+                    caps[cam].set(CV_CAP_PROP_FPS, FRAMES_PER_SECOND);
+                }
+            }
+
+            void capture(cv::Mat (&img)[2]) {
+
+                for (int cam = 0; cam < 2; cam++) {
+                    caps[cam].read(img[cam]);
+                }
+            }
+    };
 
     class StereoParameters {
 
@@ -39,6 +72,19 @@ namespace pf {
             cv::Mat map[2][2];
 
             cv::Size size;
+
+            static StereoParameters fromCorners(
+                std::vector<cv::Point3f> corner_coords,
+                std::vector<Corners> corners_image_1,
+                std::vector<Corners> corners_image_2);
+
+            static StereoParameters fromFile(std::string filename) {
+
+                cv::FileStorage fs(filename, cv::FileStorage::READ);
+                StereoParameters params;
+                fs >> params;
+                return params;
+            }
 
             StereoParameters():
                 cameraMatrix(2, cv::Mat::eye(3, 3, CV_64F)),
@@ -74,7 +120,7 @@ namespace pf {
     class StereoCapture {
 
         private:
-            Image rectify(pf::Image capture, cv::Mat map[2]) {
+            Image rectify(Image capture, cv::Mat map[2]) {
 
                 Image gray, rectified;
                 cv::cvtColor(capture, gray, CV_BGR2GRAY);
@@ -97,14 +143,14 @@ namespace pf {
             void displayCaptures() {
 
                 for (int cam = 0; cam < 2; cam++) {
-                    cv::imshow("Camera" + std::to_string(cam), captures[cam]);
+                    cv::imshow("Camera " + std::to_string(cam), captures[cam]);
                 }
             }
 
             void displayRectified() {
 
                 for (int cam = 0; cam < 2; cam++) {
-                    cv::imshow("Camera" + std::to_string(cam), rectified[cam]);
+                    cv::imshow("Camera " + std::to_string(cam), rectified[cam]);
                 }
             }
     };
@@ -118,6 +164,8 @@ namespace pf {
             void displayMap() {
                 cv::imshow("Disparity Map", map);
             }
+
+            void displayHSV();
     };
 
     class BM: public DisparityMap {
@@ -136,6 +184,5 @@ namespace pf {
     };
 
 } // namespace pf
-
 
 #endif
