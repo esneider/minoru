@@ -8,8 +8,8 @@
 #define NUM_HOR_SQUARES 7
 #define NUM_VER_SQUARES 5
 #define SQUARE_SIZE 2.75f
-#define NUM_FRAMES 25
-#define DELAY_BETWEEN_FRAMES (CLOCKS_PER_SEC * 0.1)
+#define NUM_FRAMES 15
+#define DELAY_BETWEEN_FRAMES (CLOCKS_PER_SEC * 5)
 
 
 typedef std::vector<cv::Point2f> Corners;
@@ -80,9 +80,9 @@ std::vector<Corners> getCornersSamples(size_t index) {
 }
 
 
-StereoParameters *getParameters(std::vector<Corners> imagePoints1, std::vector<Corners> imagePoints2) {
+pf::StereoParameters *getParameters(std::vector<Corners> imagePoints1, std::vector<Corners> imagePoints2) {
 
-    StereoParameters *params = new StereoParameters();
+    pf::StereoParameters *params = new pf::StereoParameters();
 
     // Corner positions in the board space
     std::vector<cv::Point3f> corners;
@@ -160,7 +160,7 @@ int main(int argc, char **argv) {
     std::vector<Corners> imagePoints1 = getCornersSamples(CAMERA_1);
     std::vector<Corners> imagePoints2 = getCornersSamples(CAMERA_2);
 
-    StereoParameters *params = getParameters(imagePoints1, imagePoints2);
+    pf::StereoParameters *params = getParameters(imagePoints1, imagePoints2);
 
     cv::FileStorage fs(argc == 2 ? argv[1] : PARAMS_FILE, cv::FileStorage::WRITE);
     fs << (*params);

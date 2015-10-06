@@ -7,6 +7,8 @@
 #include <opencv2/highgui/highgui.hpp>
 #include "elas/elas.h"
 #include "stereo.h"
+#include "camera.h"
+#include "disparity_map.h"
 
 
 void printHSV(cv::Mat_<float> &disparity, const char *window) {
@@ -39,79 +41,6 @@ void printHSV(cv::Mat_<float> &disparity, const char *window) {
 }
 
 
-cv::Mat_<uint8_t> BMDisparityMap(cv::Mat_<uint8_t> img[2]) {
-
-    cv::Mat disp;
-    cv::Mat_<uint8_t> disp8;
-    cv::StereoBM sbm;
-
-    sbm.state->SADWindowSize = 9;
-    sbm.state->numberOfDisparities = 112;
-    sbm.state->preFilterSize = 5;
-    sbm.state->preFilterCap = 61;
-    sbm.state->minDisparity = -39;
-    sbm.state->textureThreshold = 507;
-    sbm.state->uniquenessRatio = 0;
-    sbm.state->speckleWindowSize = 0;
-    sbm.state->speckleRange = 8;
-    sbm.state->disp12MaxDiff = 1;
-
-    sbm(img[CAMERA_1], img[CAMERA_2], disp);
-    cv::normalize(disp, disp8, 0, 255, CV_MINMAX, CV_8U);
-
-    return disp8;
-}
-
-
-cv::Mat_<uint8_t> SGBMDisparityMap(cv::Mat_<uint8_t> img[2]) {
-
-    cv::Mat disp;
-    cv::Mat_<uint8_t> disp8;
-    cv::StereoSGBM sgbm;
-
-    sgbm.SADWindowSize = 5;
-    sgbm.numberOfDisparities = 192;
-    sgbm.preFilterCap = 4;
-    sgbm.minDisparity = -64;
-    sgbm.uniquenessRatio = 1;
-    sgbm.speckleWindowSize = 150;
-    sgbm.speckleRange = 2;
-    sgbm.disp12MaxDiff = 10;
-    sgbm.fullDP = false;
-    sgbm.P1 = 600;
-    sgbm.P2 = 2400;
-
-    sgbm(img[CAMERA_1], img[CAMERA_2], disp);
-    cv::normalize(disp, disp8, 0, 255, CV_MINMAX, CV_8U);
-
-    return disp8;
-}
-
-
-cv::Mat_<uint8_t> ElasDisparityMap(cv::Mat_<uint8_t> img[2]) {
-
-    static Elas::parameters elasParams;
-    static Elas elas(elasParams);
-
-    int32_t dims[] = {FRAME_WIDTH, FRAME_HEIGHT, FRAME_WIDTH};
-    cv::Mat_<float> disp1 = cv::Mat_<float>(FRAME_HEIGHT, FRAME_WIDTH);
-    cv::Mat_<float> disp2 = cv::Mat_<float>(FRAME_HEIGHT, FRAME_WIDTH);
-    cv::Mat_<uint8_t> disp8;
-
-    elas.process(
-        img[CAMERA_1].data,
-        img[CAMERA_2].data,
-        (float*)disp1.data,
-        (float*)disp2.data,
-        dims
-    );
-
-    cv::normalize(disp1, disp8, 0, 255, CV_MINMAX, CV_8U);
-
-    return disp8;
-}
-
-
 int main(int argc, char **argv) {
 
     cv::VideoCapture caps[2];
@@ -130,9 +59,10 @@ int main(int argc, char **argv) {
     fs >> params;
 
     cv::Mat img[2];
-    cv::Mat_<uint8_t> gimg[2];
-    cv::Mat_<uint8_t> rimg[2];
-    cv::Mat_<uint8_t> disparity;
+    pf::Image gimg[2];
+    pf::Image rimg[2];
+    pf::Image disparity;
+    pf::DisparityMap *dm;
 
     char method = 's';
 
@@ -140,19 +70,19 @@ int main(int argc, char **argv) {
 
         for (int cam = 0; cam < 2; cam++) {
             caps[cam].read(img[cam]);
-            cv::cvtColor(img[cam], gimg[cam], CV_BGR2GRAY);
-            cv::remap(gimg[cam], rimg[cam], params.map[cam][0], params.map[cam][1], cv::INTER_LINEAR);
-            cv::imshow("Camera" + std::to_string(cam), rimg[cam]);
         }
 
+        pf::StereoCapture stereo(img, params.map);
+        stereo.displayRectified();
 
-        if (method == 'a') disparity = BMDisparityMap(rimg);
-        if (method == 's') disparity = SGBMDisparityMap(rimg);
-        if (method == 'd') disparity = ElasDisparityMap(rimg);
+        if (method == 'a') dm = new pf::BM(stereo);
+        if (method == 's') dm = new pf::SGBM(stereo);
+        if (method == 'd') dm = new pf::ELAS(stereo);
 
-        cv::imshow("Disparity Map", disparity);
+        dm->displayMap();
+        // printHSV(dm->map, "Disparity Map");
+        delete dm;
 
-        // printHSV(disparity, "Disparity Map");
 
         char c = (char)cv::waitKey(30);
         if (c == 27) break;
