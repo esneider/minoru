@@ -56,7 +56,7 @@ int main(int argc, char **argv) {
             img[cam] = cv::imread(args.imageFiles[cam], CV_LOAD_IMAGE_COLOR);
         }
     } else {
-        camera = new pf::Camera();
+        camera = new pf::VideoCamera();
     }
 
     // Event loop

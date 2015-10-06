@@ -151,7 +151,7 @@ namespace pf {
     class StereoCapture {
 
         private:
-            Image rectify(Image capture, cv::Mat map[2]) {
+            Image rectify(cv::Mat capture, cv::Mat map[2]) {
 
                 Image gray, rectified;
                 cv::cvtColor(capture, gray, CV_BGR2GRAY);

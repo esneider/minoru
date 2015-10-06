@@ -49,16 +49,13 @@ pf::StereoParameters pf::StereoParameters::fromCorners(
         params.size
     );
 
-    cv::Mat rot = params.rotation[CAMERA_1].t();
-    cv::Mat trans = -params.projection[CAMERA_1];
-
     // Compute rectification maps
     for (int cam = 0; cam < 2; cam++) {
         cv::initUndistortRectifyMap(
             params.cameraMatrix[cam],
             params.distCoeffs[cam],
-            params.rotation[cam] * rot,
-            params.projection[cam] + trans,
+            params.rotation[cam],
+            params.projection[cam],
             params.size,
             CV_32FC1,
             params.map[cam][0],
@@ -115,7 +112,7 @@ pf::BM::BM(pf::StereoCapture capture) {
     sbm.state->speckleRange = 8;
     sbm.state->disp12MaxDiff = 1;
 
-    sbm(capture.captures[CAMERA_1], capture.captures[CAMERA_2], disp);
+    sbm(capture.rectified[CAMERA_1], capture.rectified[CAMERA_2], disp);
     cv::normalize(disp, map, 0, 255, CV_MINMAX, CV_8U);
 }
 
@@ -137,7 +134,7 @@ pf::SGBM::SGBM(pf::StereoCapture capture) {
     sgbm.P1 = 600;
     sgbm.P2 = 2400;
 
-    sgbm(capture.captures[CAMERA_1], capture.captures[CAMERA_2], disp);
+    sgbm(capture.rectified[CAMERA_1], capture.rectified[CAMERA_2], disp);
     cv::normalize(disp, map, 0, 255, CV_MINMAX, CV_8U);
 }
 
@@ -152,8 +149,8 @@ pf::ELAS::ELAS(pf::StereoCapture capture) {
     cv::Mat_<float> disp2 = cv::Mat_<float>(FRAME_HEIGHT, FRAME_WIDTH);
 
     elas.process(
-        capture.captures[CAMERA_1].data,
-        capture.captures[CAMERA_2].data,
+        capture.rectified[CAMERA_1].data,
+        capture.rectified[CAMERA_2].data,
         (float*)disp1.data,
         (float*)disp2.data,
         dims

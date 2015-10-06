@@ -8,7 +8,7 @@
 #define NUM_HOR_SQUARES 7
 #define NUM_VER_SQUARES 5
 #define SQUARE_SIZE 2.75f
-#define NUM_FRAMES 25
+#define NUM_FRAMES 17
 
 
 std::pair<pf::Corners, bool> findChessboardCorners(cv::Mat frame) {
@@ -41,7 +41,7 @@ std::pair<pf::Corners, bool> findChessboardCorners(cv::Mat frame) {
 
 int main(int argc, char **argv) {
 
-    const char *path = "/home/dario/Desktop/Parallels Shared Folders/Dropbox/pf-minoru/calibration/test_%s_%u.png";
+    const char *path = "/home/dario/Desktop/Parallels Shared Folders/Dropbox/pf-minoru/good_calib/test_%s_%u.png";
     pf::ImageCamera camera = pf::ImageCamera(path);
 
     // Get corner samples for both cameras
@@ -58,6 +58,19 @@ int main(int argc, char **argv) {
         if (found_1.second && found_2.second) {
             corner_samples[0].push_back(found_1.first);
             corner_samples[1].push_back(found_2.first);
+
+            cv::Mat frame;
+            cv::Size numSquares(NUM_HOR_SQUARES, NUM_VER_SQUARES);
+
+            std::cout << "Sample " <<(sample + 1) << std::endl;
+
+            cv::drawChessboardCorners(img[0], numSquares, cv::Mat(found_1.first), found_1.second);
+            cv::imshow("Corners 1", img[0]);
+
+            cv::drawChessboardCorners(img[1], numSquares, cv::Mat(found_2.first), found_2.second);
+            cv::imshow("Corners 2", img[1]);
+
+            cv::waitKey();
         }
     }
 
