@@ -1,5 +1,6 @@
 #include <opencv2/opencv.hpp>
 #include <iostream>
+#include <cstdio>
 #include <unistd.h>
 
 int main() {
@@ -40,16 +41,15 @@ int main() {
         cv::imshow("MyVideo1", frame1);
         cv::imshow("MyVideo2", frame2);
 
-		int key = cv::waitKey(30);
-		if (key == 10) {
-			std::cout << "Enter pressed" << std::endl;
+		int key = cv::waitKey(300);
+		if (key == '\r') {
+			std::cout << "Capturing smaple " << (++index) << std::endl;
 
-            index++;
-            sprintf(str, "test_left_%d.png", index);
-			imwrite(str, frame1);
+            std::sprintf(str, "test_left_%d.png", index);
+            cv::imwrite(str, frame1);
 
-            sprintf(str, "test_right_%d.png", index);
-			imwrite(str, frame2);
+            std::sprintf(str, "test_right_%d.png", index);
+            cv::imwrite(str, frame2);
 		}
 
         if (key == 27) {
