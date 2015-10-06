@@ -7,8 +7,6 @@
 #include <opencv2/highgui/highgui.hpp>
 #include "elas/elas.h"
 #include "stereo.h"
-#include "camera.h"
-#include "disparity_map.h"
 
 
 void printHSV(cv::Mat_<float> &disparity, const char *window) {
@@ -54,7 +52,7 @@ int main(int argc, char **argv) {
     cv::namedWindow("Camera0", CV_WINDOW_AUTOSIZE);
     cv::namedWindow("Camera1", CV_WINDOW_AUTOSIZE);
 
-    StereoParameters params;
+    pf::StereoParameters params;
     cv::FileStorage fs(argc == 2 ? argv[1] : PARAMS_FILE, cv::FileStorage::READ);
     fs >> params;
 
