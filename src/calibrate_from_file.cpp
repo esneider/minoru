@@ -3,11 +3,12 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/core/core.hpp>
 #include "stereo.h"
+#include "utils.h"
 
 
 #define NUM_HOR_SQUARES 7
 #define NUM_VER_SQUARES 5
-#define SQUARE_SIZE 2.75f
+#define SQUARE_SIZE 1.f
 #define NUM_FRAMES 17
 
 
@@ -86,6 +87,12 @@ int main(int argc, char **argv) {
     }
 
     pf::StereoParameters params = pf::StereoParameters::fromCorners(corners, corner_samples[0], corner_samples[1]);
+
+    printMat("R", params.R);
+    printMat("rot[cam_1]", params.rotation[CAMERA_1]);
+    printMat("rot[cam_2]", params.rotation[CAMERA_2]);
+    printMat("proj[cam_1]", params.projection[CAMERA_1]);
+    printMat("proj[cam_2]", params.projection[CAMERA_2]);
 
     cv::FileStorage fs(argc == 2 ? argv[1] : PARAMS_FILE, cv::FileStorage::WRITE);
     fs << params;

@@ -49,6 +49,13 @@ pf::StereoParameters pf::StereoParameters::fromCorners(
         params.size
     );
 
+    params.rotation[CAMERA_1] = cv::Mat::eye(3, 3, CV_64F);
+    params.rotation[CAMERA_2] = cv::Mat::eye(3, 3, CV_64F);
+    params.projection[CAMERA_1].at<double>(0, 2) = 0;
+    params.projection[CAMERA_1].at<double>(1, 2) = 0;
+    params.projection[CAMERA_2].at<double>(0, 2) = 0;
+    params.projection[CAMERA_2].at<double>(1, 2) = 0;
+
     // Compute rectification maps
     for (int cam = 0; cam < 2; cam++) {
         cv::initUndistortRectifyMap(

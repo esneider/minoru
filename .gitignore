@@ -1,6 +1,8 @@
 *.pyc
 *.xml
+*.yml
 *~
 .DS_Store
 rectify
 calibrate
+calibrate_from_file

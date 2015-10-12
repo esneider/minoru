@@ -7,8 +7,10 @@ all:
 	g++ -o calibrate_from_file calibrate_from_file.cpp ${CPP_FLAGS}
 	g++ -o rectify rectify.cpp ${CPP_FLAGS}
 	chmod a+x calibrate_from_file rectify
+
 quirks:
 	sudo rmmod uvcvideo
 	sudo modprobe uvcvideo quirks=128
+
 clean:
-	rm -f calibrate rectify *.yml
+	rm -f calibrate calibrate_from_file rectify *.yml
