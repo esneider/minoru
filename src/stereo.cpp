@@ -51,7 +51,7 @@ pf::StereoParameters pf::StereoParameters::fromCorners(
         params.T,
         params.E,
         params.F,
-        cv::TermCriteria(cv::TermCriteria::COUNT | cv::TermCriteria::EPS,  INT_MAX, DBL_EPSILON),
+        cv::TermCriteria(CV_TERMCRIT_ITER | CV_TERMCRIT_EPS,  INT_MAX, DBL_EPSILON),
         CV_CALIB_FIX_K3 | CV_CALIB_FIX_INTRINSIC
     );
 
