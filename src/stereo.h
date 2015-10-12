@@ -21,7 +21,7 @@
 namespace pf {
 
     typedef std::vector<cv::Point2f> Corners;
-
+    typedef cv::Mat_<float> Map;
     typedef cv::Mat_<uint8_t> Image;
 
     class Camera {
@@ -189,6 +189,7 @@ namespace pf {
     class DisparityMap {
         public:
             Image map;
+            Map disparity;
 
             virtual ~DisparityMap() {}
 

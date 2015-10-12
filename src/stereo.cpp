@@ -140,6 +140,7 @@ pf::BM::BM(pf::StereoCapture capture) {
     sbm.state->disp12MaxDiff = 1;
 
     sbm(capture.rectified[CAMERA_1], capture.rectified[CAMERA_2], disp);
+    disp.convertTo(disparity, CV_32F);
     cv::normalize(disp, map, 0, 255, CV_MINMAX, CV_8U);
 }
 
@@ -162,6 +163,7 @@ pf::SGBM::SGBM(pf::StereoCapture capture) {
     sgbm.P2 = 2400;
 
     sgbm(capture.rectified[CAMERA_1], capture.rectified[CAMERA_2], disp);
+    disp.convertTo(disparity, CV_32F);
     cv::normalize(disp, map, 0, 255, CV_MINMAX, CV_8U);
 }
 
@@ -183,5 +185,6 @@ pf::ELAS::ELAS(pf::StereoCapture capture) {
         dims
     );
 
+    disp1.convertTo(disparity, CV_32F);
     cv::normalize(disp1, map, 0, 255, CV_MINMAX, CV_8U);
 }
