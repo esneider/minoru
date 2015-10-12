@@ -42,7 +42,7 @@ std::pair<pf::Corners, bool> findChessboardCorners(cv::Mat frame) {
 
 int main(int argc, char **argv) {
 
-    const char *path = "/home/dario/Desktop/Parallels Shared Folders/Dropbox/pf-minoru/good_calib/test_%s_%u.png";
+    const char *path = "../samples/calibration/test_%s_%u.png";
     pf::ImageCamera camera = pf::ImageCamera(path);
 
     // Get corner samples for both cameras
