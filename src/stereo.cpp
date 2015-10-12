@@ -10,6 +10,33 @@ pf::StereoParameters pf::StereoParameters::fromCorners(
     std::vector<std::vector<cv::Point3f> > objectPoints(corners_image_1.size(), corner_coords);
     pf::StereoParameters params;
 
+    std::vector<cv::Mat> rvecs[2];
+    std::vector<cv::Mat> tvecs[2];
+
+    double rms_1 = calibrateCamera( 
+        objectPoints, 
+        corners_image_1,
+        params.size,
+        params.cameraMatrix[CAMERA_1],
+        params.distCoeffs[CAMERA_1],
+        rvecs[CAMERA_1], 
+        tvecs[CAMERA_1], 
+        CV_CALIB_FIX_K3 , 
+        cvTermCriteria( CV_TERMCRIT_ITER+CV_TERMCRIT_EPS,150000000000000000,DBL_EPSILON ) 
+    );
+
+    double rms_2 = calibrateCamera( 
+        objectPoints, 
+        corners_image_2,
+        params.size,
+        params.cameraMatrix[CAMERA_2],
+        params.distCoeffs[CAMERA_2],
+        rvecs[CAMERA_2], 
+        tvecs[CAMERA_2], 
+        CV_CALIB_FIX_K3 , 
+        cvTermCriteria( CV_TERMCRIT_ITER+CV_TERMCRIT_EPS,150000000000000000,DBL_EPSILON ) 
+    );       
+
     // Calibrate
     double rms = cv::stereoCalibrate(
         objectPoints,
@@ -24,11 +51,13 @@ pf::StereoParameters pf::StereoParameters::fromCorners(
         params.T,
         params.E,
         params.F,
-        cv::TermCriteria(CV_TERMCRIT_EPS | CV_TERMCRIT_ITER, 30, 1e-6),
-        CV_CALIB_RATIONAL_MODEL | CV_CALIB_USE_INTRINSIC_GUESS | CV_CALIB_FIX_PRINCIPAL_POINT
+        cv::TermCriteria( cv::TermCriteria::COUNT+cv::TermCriteria::EPS, 150000000000000000,DBL_EPSILON ), 
+        CV_CALIB_FIX_K3+CV_CALIB_FIX_INTRINSIC
     );
 
     std::cout << "RMS = " << rms << std::endl;
+
+    //Rodrigues(params.R, params.R);
 
     // Rectify
     cv::stereoRectify(
@@ -49,12 +78,12 @@ pf::StereoParameters pf::StereoParameters::fromCorners(
         params.size
     );
 
-    params.rotation[CAMERA_1] = cv::Mat::eye(3, 3, CV_64F);
-    params.rotation[CAMERA_2] = cv::Mat::eye(3, 3, CV_64F);
-    params.projection[CAMERA_1].at<double>(0, 2) = 0;
-    params.projection[CAMERA_1].at<double>(1, 2) = 0;
-    params.projection[CAMERA_2].at<double>(0, 2) = 0;
-    params.projection[CAMERA_2].at<double>(1, 2) = 0;
+    //params.rotation[CAMERA_1] = cv::Mat::eye(3, 3, CV_64F);
+    //params.rotation[CAMERA_2] = cv::Mat::eye(3, 3, CV_64F);
+    //params.projection[CAMERA_1].at<double>(0, 2) = 0;
+    //params.projection[CAMERA_1].at<double>(1, 2) = 0;
+    //params.projection[CAMERA_2].at<double>(0, 2) = 0;
+    //params.projection[CAMERA_2].at<double>(1, 2) = 0;
 
     // Compute rectification maps
     for (int cam = 0; cam < 2; cam++) {

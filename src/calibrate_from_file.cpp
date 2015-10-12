@@ -20,7 +20,7 @@ std::pair<pf::Corners, bool> findChessboardCorners(cv::Mat frame) {
         frame,
         cv::Size(NUM_HOR_SQUARES, NUM_VER_SQUARES),
         corners,
-        CV_CALIB_CB_ADAPTIVE_THRESH | CV_CALIB_CB_NORMALIZE_IMAGE
+        CV_CALIB_CB_FILTER_QUADS + CV_CALIB_CB_ADAPTIVE_THRESH
     );
 
     // Improve coordinate accuracy
@@ -30,9 +30,9 @@ std::pair<pf::Corners, bool> findChessboardCorners(cv::Mat frame) {
         cv::cornerSubPix(
             frameGray,
             corners,
-            cv::Size(11, 11),
+            cv::Size(6, 6),
             cv::Size(-1, -1),
-            cv::TermCriteria(CV_TERMCRIT_EPS | CV_TERMCRIT_ITER, 30, 0.1)
+            cv::TermCriteria(CV_TERMCRIT_EPS+CV_TERMCRIT_ITER,50000000000,0.0000000000001)
         );
     }
 
@@ -43,7 +43,8 @@ std::pair<pf::Corners, bool> findChessboardCorners(cv::Mat frame) {
 int main(int argc, char **argv) {
 
     const char *path = "../samples/calibration/test_%s_%u.png";
-    pf::ImageCamera camera = pf::ImageCamera(path);
+
+	pf::ImageCamera camera = pf::ImageCamera(path);
 
     // Get corner samples for both cameras
     std::vector<pf::Corners> corner_samples[2];
