@@ -34,12 +34,22 @@ struct Arguments {
     }
 };
 
+void CallBackFunc(int event, int x, int y, int flags, void* userdata)
+{
+     if  ( event == cv::EVENT_LBUTTONDOWN )
+     {
+          std::cout << "Left button of the mouse is clicked - position (" << x << ", " << y << ")" << std::endl;
+     }
+}
+
 int main(int argc, char **argv) {
 
     // Setup windows
     cv::namedWindow("Camera 0", CV_WINDOW_AUTOSIZE);
     cv::namedWindow("Camera 1", CV_WINDOW_AUTOSIZE);
     cv::namedWindow("Disparity Map", CV_WINDOW_AUTOSIZE);
+
+    cv::setMouseCallback("Disparity Map", CallBackFunc, NULL);
 
     // Parse command line arguments
     Arguments args(argc - 1, argv + 1);
@@ -84,8 +94,16 @@ int main(int argc, char **argv) {
 
         delete dm;
 
+        char c;
+
         // Read keys
-        char c = (char)cv::waitKey(30);
+        if (!args.fromFile) {
+            c = (char)cv::waitKey(30);
+        }
+        else
+        {
+            c = (char)cv::waitKey();    
+        }
         if (c == 27) break;
         if (c == 'a' || c == 's' || c == 'd') method = c;
     }
