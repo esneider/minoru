@@ -46,8 +46,8 @@ void mouseEvent(int event, int x, int y, int flags, void *data) {
     if (event == cv::EVENT_LBUTTONDOWN) {
 
         cv::Size size = dm->disparity.size();
-        float max_element = 0;
-        float min_element = INT_MAX;
+        float max_element = FLT_MIN;
+        float min_element = FLT_MAX;
         float all_elements = 0;
         int num_elements = 0;
 
