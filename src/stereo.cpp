@@ -14,8 +14,8 @@ pf::StereoParameters pf::StereoParameters::fromCorners(
     std::vector<cv::Mat> tvecs[2];
 
     /**
-    se utiliza como flag únicamente CV_CALIB_FIX_K3 
-    lo cual indica que el parámetro de distorsión radial 
+    se utiliza como flag únicamente CV_CALIB_FIX_K3
+    lo cual indica que el parámetro de distorsión radial
     K3 no es modificado durante la optimización.
     */
 
@@ -44,9 +44,9 @@ pf::StereoParameters pf::StereoParameters::fromCorners(
     );
 
     /**
-    se agrega el flag CV_CALIB_FIX_INTRINSIC. 
+    se agrega el flag CV_CALIB_FIX_INTRINSIC.
     Esto indica que las matrices de las cámaras y los c
-    oeficientes de distorsión son optimizados de modo tal que 
+    oeficientes de distorsión son optimizados de modo tal que
     las matrices R, T, E, y F sean estimadas.
     */
 
@@ -71,8 +71,8 @@ pf::StereoParameters pf::StereoParameters::fromCorners(
     std::cout << "RMS = " << rms << std::endl;
 
     /**
-    V_CALIB_ZERO_DISPARITY el cual hace que los puntos principales 
-    de cada cámara tengan las mismas coordenadas en las vistas 
+    V_CALIB_ZERO_DISPARITY el cual hace que los puntos principales
+    de cada cámara tengan las mismas coordenadas en las vistas
     rectificadas
     */
 
@@ -195,9 +195,7 @@ Se calcula la disparidad en donde la textura supera la cota indicada.
 */
 
 
-pf::BM::BM(pf::StereoCapture capture) {
-
-    std::cout << "Method: BM" << std::endl;
+void pf::BM::compute() {
 
     cv::Mat disp;
     cv::StereoBM sbm;
@@ -219,9 +217,7 @@ pf::BM::BM(pf::StereoCapture capture) {
 }
 
 
-pf::SGBM::SGBM(pf::StereoCapture capture) {
-
-    std::cout << "Method: SGBM" << std::endl;
+void pf::SGBM::compute() {
 
     cv::Mat disp;
     cv::StereoSGBM sgbm;
@@ -244,9 +240,7 @@ pf::SGBM::SGBM(pf::StereoCapture capture) {
 }
 
 
-pf::ELAS::ELAS(pf::StereoCapture capture) {
-
-    std::cout << "Method: ELAS" << std::endl;
+void pf::ELAS::compute() {
 
     static Elas::parameters elasParams;
     static Elas elas(elasParams);

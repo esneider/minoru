@@ -5,6 +5,11 @@
 
 #define WINDOW_SIZE 7
 
+#define DENSITY_LEFT 10
+#define DENSITY_RIGHT 10
+#define DENSITY_TOP 10
+#define DENSITY_BOTTOM 10
+
 
 struct Arguments {
 
@@ -38,44 +43,98 @@ struct Arguments {
 };
 
 
-void mouseEvent(int event, int x, int y, int flags, void *data) {
+void computeMouseWindow(int x, int y, pf::DisparityMap& map) {
 
-    pf::DisparityMap *dm = (pf::DisparityMap*)data;
+    cv::Size size = map.disparity.size();
+    float max_element = FLT_MIN;
+    float min_element = FLT_MAX;
+    float all_elements = 0;
+    int num_elements = 0;
 
-    if (dm != NULL)
-    if (event == cv::EVENT_LBUTTONDOWN) {
+    for (int dy = 0; dy < WINDOW_SIZE; dy++) {
+        for (int dx = 0; dx < WINDOW_SIZE; dx++) {
 
-        cv::Size size = dm->disparity.size();
-        float max_element = FLT_MIN;
-        float min_element = FLT_MAX;
-        float all_elements = 0;
-        int num_elements = 0;
+            int fx = x + dx - (WINDOW_SIZE + 1) / 2;
+            int fy = y + dy - (WINDOW_SIZE + 1) / 2;
 
-        for (int dy = 0; dy < WINDOW_SIZE; dy++) {
-            for (int dx = 0; dx < WINDOW_SIZE; dx++) {
+            if (fy >= 0 && fy < size.height)
+            if (fx >= 0 && fx < size.width) {
 
-                int fx = x + dx - (WINDOW_SIZE + 1) / 2;
-                int fy = y + dy - (WINDOW_SIZE + 1) / 2;
+                float value = map.disparity.at<float>(fy, fx);
 
-                if (fy >= 0 && fy < size.height)
-                if (fx >= 0 && fx < size.width) {
-
-                    float value = dm->disparity.at<float>(fy, fx);
-
-                    if (value) {
-                        all_elements += value;
-                        num_elements += 1;
-                        if (value > max_element) max_element = value;
-                        if (value < min_element) min_element = value;
-                    }
+                if (value) {
+                    all_elements += value;
+                    num_elements += 1;
+                    if (value > max_element) max_element = value;
+                    if (value < min_element) min_element = value;
                 }
             }
         }
+    }
 
-        std::cout << "Left button clicked at (" << x << ", " << y << ")" << std::endl;
-        std::cout << "\tmin_element = " << min_element << std::endl;
-        std::cout << "\tmax_element = " << max_element << std::endl;
-        std::cout << "\tmean = " << (all_elements / (double) num_elements) << std::endl;
+    std::cout << "Left button clicked at (" << x << ", " << y << ")" << std::endl;
+    std::cout << "\tmin_element = " << min_element << std::endl;
+    std::cout << "\tmax_element = " << max_element << std::endl;
+    std::cout << "\tmean = " << (all_elements / (double) num_elements) << std::endl;
+}
+
+
+void computeDensity(pf::DisparityMap& map) {
+
+    cv::Size size = map.disparity.size();
+
+    float min_val = 0;
+    int valid = 0;
+    int all = 0;
+
+    for (int y = 0; y < size.height; y++) {
+        for (int x = 0; x < size.width; x++) {
+            if (map.disparity.at<float>(y, x) < min_val) {
+                min_val = map.disparity.at<float>(y, x);
+            }
+        }
+    }
+
+    for (int y = DENSITY_TOP; y < size.height - DENSITY_BOTTOM; y++) {
+        for (int x = DENSITY_LEFT; x < size.width - DENSITY_RIGHT; x++) {
+            all++;
+            if (map.disparity.at<float>(y, x) != min_val) {
+                valid++;
+            }
+        }
+    }
+
+    double density = double(valid) / all;
+    std::cout << "Density: " << density << std::endl;
+}
+
+
+void mouseEvent(int event, int x, int y, int flags, void *data) {
+
+    pf::StereoCapture *stereo = (pf::StereoCapture*)data;
+
+    pf::DisparityMap algs[] = {
+        pf::BM(*stereo),
+        pf::SGBM(*stereo),
+        pf::ELAS(*stereo),
+    };
+
+    if (stereo != NULL && event == cv::EVENT_LBUTTONDOWN) {
+
+        for (auto map: algs) {
+
+            std::cout << "Method: " << map.name << std::endl;
+
+            clock_t begin = clock();
+            map.compute();
+            clock_t end = clock();
+
+            double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+            std::cout << "Time: " << elapsed_secs << std::endl;
+
+            computeDensity(map);
+            computeMouseWindow(x, y, map);
+        }
     }
 }
 
@@ -110,8 +169,6 @@ int main(int argc, char **argv) {
 
     while (true) {
 
-        std::cout << "--------" << std::endl;
-
         if (!args.fromFile) {
             camera->capture(img);
         }
@@ -120,53 +177,18 @@ int main(int argc, char **argv) {
         pf::StereoCapture stereo(img, params.map);
         stereo.displayRectified();
 
+        // Set mouse event listener
+        cv::setMouseCallback("Disparity Map", mouseEvent, &stereo);
+
         // Compute disparity map
         pf::DisparityMap *dm;
-
-        clock_t begin = clock();
 
         if (method == 'a') dm = new pf::BM(stereo);
         if (method == 's') dm = new pf::SGBM(stereo);
         if (method == 'd') dm = new pf::ELAS(stereo);
 
-        clock_t end = clock();
-        double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
-
-        std::cout << std::endl << "Time elapsed: " << elapsed_secs << std::endl;
-
-        cv::setMouseCallback("Disparity Map", mouseEvent, dm);
-
+        dm->compute();
         dm->displayMap();
-
-        cv::Size size = dm->disparity.size();
-
-        float min_val = 0;
-        int valid = 0;
-
-        for (int y = 0; y < size.height; y++) {
-            for (int x = 0; x < size.width; x++) {
-                if (dm->disparity.at<float>(y, x) < min_val)
-                {
-                    min_val = dm->disparity.at<float>(y, x);
-                }
-            }
-        }
-
-        for (int y = 0; y < size.height; y++) {
-            for (int x = 0; x < size.width; x++) {
-                if (dm->disparity.at<float>(y, x) != min_val)
-                {
-                    valid++;
-                }
-            }
-        }
-
-        double density = double(valid) / (size.height * size.width);
-
-        std::cout << "Valid pixels: " << valid << std::endl;
-        std::cout << "Density: " << density << std::endl;
-
-        std::cout << "--------" << std::endl;
 
         // Read keys
         char c = (char)cv::waitKey(args.fromFile ? 0 : 30);

@@ -188,9 +188,13 @@ namespace pf {
 
     class DisparityMap {
         public:
+            StereoCapture capture;
             Image map;
             Map disparity;
+            const std::string name;
 
+            DisparityMap(StereoCapture capture): capture(capture) {}
+            virtual void compute();
             virtual ~DisparityMap() {}
 
             void displayMap() {
@@ -202,17 +206,23 @@ namespace pf {
 
     class BM: public DisparityMap {
         public:
-            BM(StereoCapture capture);
+            const std::string name = "BM";
+            BM(StereoCapture capture): DisparityMap(capture) {}
+            void compute();
     };
 
     class SGBM: public DisparityMap {
         public:
-            SGBM(StereoCapture capture);
+            const std::string name = "SGBM";
+            SGBM(StereoCapture capture): DisparityMap(capture) {}
+            void compute();
     };
 
     class ELAS: public DisparityMap {
         public:
-            ELAS(StereoCapture capture);
+            const std::string name = "ELAS";
+            ELAS(StereoCapture capture): DisparityMap(capture) {}
+            void compute();
     };
 
 } // namespace pf
