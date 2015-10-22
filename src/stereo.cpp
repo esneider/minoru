@@ -197,6 +197,8 @@ Se calcula la disparidad en donde la textura supera la cota indicada.
 
 pf::BM::BM(pf::StereoCapture capture) {
 
+    std::cout << "Method: BM" << std::endl;
+
     cv::Mat disp;
     cv::StereoBM sbm;
 
@@ -218,6 +220,8 @@ pf::BM::BM(pf::StereoCapture capture) {
 
 
 pf::SGBM::SGBM(pf::StereoCapture capture) {
+
+    std::cout << "Method: SGBM" << std::endl;
 
     cv::Mat disp;
     cv::StereoSGBM sgbm;
@@ -241,6 +245,8 @@ pf::SGBM::SGBM(pf::StereoCapture capture) {
 
 
 pf::ELAS::ELAS(pf::StereoCapture capture) {
+
+    std::cout << "Method: ELAS" << std::endl;
 
     static Elas::parameters elasParams;
     static Elas elas(elasParams);

@@ -197,6 +197,27 @@ namespace pf {
                 cv::imshow("Disparity Map", map);
             }
 
+            void printDensity()
+            {
+                cv::Size size = map.size();
+
+                int valid = 0;
+
+                for (int y = 0; y < size.height; y++) {
+                    for (int x = 0; x < size.width; x++) {
+                        if (map.at<double>(x, y) != 0)
+                        {
+                            valid++;
+                        }
+                    }
+                }
+
+                double density = double(valid) / (size.height * size.width);
+
+                std::cout << "Valid pixels: " << valid << std::endl;
+                std::cout << "Density: " << density << std::endl;
+            }
+
             void displayHSV();
     };
 

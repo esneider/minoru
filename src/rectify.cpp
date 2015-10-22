@@ -110,6 +110,8 @@ int main(int argc, char **argv) {
 
     while (true) {
 
+        std::cout << "--------" << std::endl;
+
         if (!args.fromFile) {
             camera->capture(img);
         }
@@ -121,13 +123,24 @@ int main(int argc, char **argv) {
         // Compute disparity map
         pf::DisparityMap *dm;
 
+        clock_t begin = clock();
+
         if (method == 'a') dm = new pf::BM(stereo);
         if (method == 's') dm = new pf::SGBM(stereo);
         if (method == 'd') dm = new pf::ELAS(stereo);
 
+        clock_t end = clock();
+        double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+
+        std::cout << std::endl << "Time elapsed: " << elapsed_secs << std::endl;
+
         cv::setMouseCallback("Disparity Map", mouseEvent, dm);
 
         dm->displayMap();
+
+        dm->printDensity();
+
+        std::cout << "--------" << std::endl;
 
         // Read keys
         char c = (char)cv::waitKey(args.fromFile ? 0 : 30);
