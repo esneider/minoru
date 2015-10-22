@@ -13,6 +13,12 @@ pf::StereoParameters pf::StereoParameters::fromCorners(
     std::vector<cv::Mat> rvecs[2];
     std::vector<cv::Mat> tvecs[2];
 
+    /**
+    se utiliza como flag únicamente CV_CALIB_FIX_K3 
+    lo cual indica que el parámetro de distorsión radial 
+    K3 no es modificado durante la optimización.
+    */
+
     double rms_1 = calibrateCamera(
         objectPoints,
         corners_image_1,
@@ -37,6 +43,13 @@ pf::StereoParameters pf::StereoParameters::fromCorners(
         cvTermCriteria(CV_TERMCRIT_ITER | CV_TERMCRIT_EPS, INT_MAX, DBL_EPSILON)
     );
 
+    /**
+    se agrega el flag CV_CALIB_FIX_INTRINSIC. 
+    Esto indica que las matrices de las cámaras y los c
+    oeficientes de distorsión son optimizados de modo tal que 
+    las matrices R, T, E, y F sean estimadas.
+    */
+
     // Calibrate
     double rms = cv::stereoCalibrate(
         objectPoints,
@@ -56,6 +69,12 @@ pf::StereoParameters pf::StereoParameters::fromCorners(
     );
 
     std::cout << "RMS = " << rms << std::endl;
+
+    /**
+    V_CALIB_ZERO_DISPARITY el cual hace que los puntos principales 
+    de cada cámara tengan las mismas coordenadas en las vistas 
+    rectificadas
+    */
 
     // Rectify
     cv::stereoRectify(
@@ -121,6 +140,59 @@ void pf::DisparityMap::displayHSV() {
 
     cv::imshow("Disparity Map", depthImg);
 }
+
+/** Parametros de los algoritmos
+
+sgbm.SADWindowSize = 5;
+
+Esto indica el tamaño de las ventanas que serán comparadas entre ambas imágenes.
+
+sgbm.numberOfDisparities = 192;
+
+Esto indica el rango de disparidades buscadas se encuentra en [minDisparity, minDisparity+numberOfDisparities].
+
+sgbm.preFilterCap = 4;
+
+Se define una cota para los valores de salida a [-preFilterCap, preFilterCap]
+
+sgbm.minDisparity = -64;
+
+Se define el menor valor de disparidad que es tomado en cuenta.
+
+sgbm.uniquenessRatio = 1;
+
+Este valor define otro filtro para los valores aceptados por las disparidades.
+
+sgbm.speckleWindowSize = 150;
+
+Este valor es el tamaño máximo de regiones de disparidad para considerar (e invalidar) ruido Speckle.
+
+sgbm.speckleRange = 2;
+
+Esto define la máxima variación de las disparidades entre cada componente conectado.
+
+sgbm.disp12MaxDiff = 10;
+
+Bajo este valor se marca la diferencia permitida (en cantidad de píxeles) al hacer el chequeo izquierdo-derecho de disparidad.
+
+sgbm.fullDP = false;
+
+Al indicar este parámetro como falso, se utiliza una versión menos optimizada del algoritmo, mucho más económico en el uso de la memoria.
+
+sgbm.P1 = 600;
+sgbm.P2 = 2400;
+
+Estos parámetros indican la suavidad de la disparidad. Cuanto más grandes son estos valores, mejores son los resultados. Ambos valores aplican castigos a la diferencia de disparidad entre píxeles vecinos.
+
+sbm.state->preFilterSize = 5;
+
+Se indica el tamaño de la ventana del filtro previo que se aplica.
+
+sbm.state->textureThreshold = 507;
+
+Se calcula la disparidad en donde la textura supera la cota indicada.
+
+*/
 
 
 pf::BM::BM(pf::StereoCapture capture) {

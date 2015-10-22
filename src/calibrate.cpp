@@ -16,6 +16,16 @@ std::pair<pf::Corners, bool> findChessboardCorners(cv::Mat frame) {
 
     pf::Corners corners;
 
+    /** 
+    Se utilizan los flags CV_CALIB_CB_ADAPTIVE_THRESH y 
+    CV_CALIB_CB_NORMALIZE_IMAGE los cuales de forma empírica 
+    han traído los mejores resultados. 
+    El primer flag indica que se usa una cota adaptativa para 
+    convertir la imagen a blanco y negro en vez de usar una cota fija. 
+    El segundo flag obliga a normalizar la imagen gamma antes 
+    de aplicar la cota antes mencionada.
+    */
+    
     bool found = cv::findChessboardCorners(
         frame,
         cv::Size(NUM_HOR_SQUARES, NUM_VER_SQUARES),
@@ -27,6 +37,15 @@ std::pair<pf::Corners, bool> findChessboardCorners(cv::Mat frame) {
     if (found) {
         cv::Mat frameGray;
         cv::cvtColor(frame, frameGray, CV_BGR2GRAY);
+
+        /**
+        CV_TERMCRIT_EPS y CV_TERMCRIT_ITER le indica al algoritmo 
+        que la terminación del mismo será luego de que los 
+        resultados convergen a cierto valor o luego de determinada 
+        cantidad de iteraciones. Los siguientes parámetros indican 
+        los valores de terminación concretamente.
+        */
+
         cv::cornerSubPix(
             frameGray,
             corners,
