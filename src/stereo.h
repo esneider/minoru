@@ -194,7 +194,7 @@ namespace pf {
             const std::string name;
 
             DisparityMap(StereoCapture capture): capture(capture) {}
-            virtual void compute();
+            virtual void compute() = 0;
             virtual ~DisparityMap() {}
 
             void displayMap() {

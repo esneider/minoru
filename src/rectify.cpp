@@ -113,27 +113,29 @@ void mouseEvent(int event, int x, int y, int flags, void *data) {
 
     pf::StereoCapture *stereo = (pf::StereoCapture*)data;
 
-    pf::DisparityMap algs[] = {
-        pf::BM(*stereo),
-        pf::SGBM(*stereo),
-        pf::ELAS(*stereo),
+    pf::DisparityMap *algs[] = {
+        new pf::BM(*stereo),
+        new pf::SGBM(*stereo),
+        new pf::ELAS(*stereo),
     };
 
     if (stereo != NULL && event == cv::EVENT_LBUTTONDOWN) {
 
         for (auto map: algs) {
 
-            std::cout << "Method: " << map.name << std::endl;
+            std::cout << "Method: " << map->name << std::endl;
 
             clock_t begin = clock();
-            map.compute();
+            map->compute();
             clock_t end = clock();
 
             double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
             std::cout << "Time: " << elapsed_secs << std::endl;
 
-            computeDensity(map);
-            computeMouseWindow(x, y, map);
+            computeDensity(*map);
+            computeMouseWindow(x, y, *map);
+
+            delete map;
         }
     }
 }
