@@ -138,7 +138,33 @@ int main(int argc, char **argv) {
 
         dm->displayMap();
 
-        dm->printDensity();
+        cv::Size size = dm->disparity.size();
+
+        float min_val = 0;
+        int valid = 0;
+
+        for (int y = 0; y < size.height; y++) {
+            for (int x = 0; x < size.width; x++) {
+                if (dm->disparity.at<float>(y, x) < min_val)
+                {
+                    min_val = dm->disparity.at<float>(y, x);
+                }
+            }
+        }
+
+        for (int y = 0; y < size.height; y++) {
+            for (int x = 0; x < size.width; x++) {
+                if (dm->disparity.at<float>(y, x) != min_val)
+                {
+                    valid++;
+                }
+            }
+        }
+
+        double density = double(valid) / (size.height * size.width);
+
+        std::cout << "Valid pixels: " << valid << std::endl;
+        std::cout << "Density: " << density << std::endl;
 
         std::cout << "--------" << std::endl;
 
