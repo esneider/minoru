@@ -150,24 +150,22 @@ namespace pf {
 
     class StereoCapture {
 
-        private:
-            Image rectify(cv::Mat capture, cv::Mat map[2]) {
-
-                Image gray, rectified;
-                cv::cvtColor(capture, gray, CV_BGR2GRAY);
-                cv::remap(gray, rectified, map[0], map[1], cv::INTER_LINEAR);
-                return rectified;
-            }
-
         public:
             cv::Mat captures[2];
             Image rectified[2];
 
-            StereoCapture(cv::Mat captures[2], cv::Mat map[2][2]) {
+            enum Plane {
+                ALL = 0,
+                RED,
+                GREEN,
+                BLUE,
+            };
+
+            StereoCapture(cv::Mat captures[2], cv::Mat map[2][2], Plane p) {
 
                 for (int cam = 0; cam < 2; cam++) {
                     this->captures[cam] = captures[cam];
-                    this->rectified[cam] = rectify(captures[cam], map[cam]);
+                    this->rectified[cam] = rectify(captures[cam], map[cam], p);
                 }
             }
 
@@ -183,6 +181,26 @@ namespace pf {
                 for (int cam = 0; cam < 2; cam++) {
                     cv::imshow("Camera " + std::to_string(cam), rectified[cam]);
                 }
+            }
+
+        private:
+            Image rectify(cv::Mat capture, cv::Mat map[2], Plane p) {
+
+                cv::Mat planes[3], selected;
+                cv::split(capture, planes);
+
+                switch (p) {
+                    case ALL:   selected = capture;   break;
+                    case BLUE:  selected = planes[2]; break;
+                    case GREEN: selected = planes[1]; break;
+                    case RED:   selected = planes[0]; break;
+                }
+
+                Image gray, rectified;
+
+                cv::cvtColor(selected, gray, CV_BGR2GRAY);
+                cv::remap(gray, rectified, map[0], map[1], cv::INTER_LINEAR);
+                return rectified;
             }
     };
 

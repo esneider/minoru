@@ -167,6 +167,8 @@ int main(int argc, char **argv) {
     }
 
     // Event loop
+    pf::StereoCapture::Plane p = pf::StereoCapture::ALL;
+    pf::DisparityMap *dm = NULL;
     char method = 's';
 
     while (true) {
@@ -175,27 +177,35 @@ int main(int argc, char **argv) {
             camera->capture(img);
         }
 
+        if (method == 'q') p = pf::StereoCapture::ALL;
+        if (method == 'w') p = pf::StereoCapture::RED;
+        if (method == 'e') p = pf::StereoCapture::GREEN;
+        if (method == 'r') p = pf::StereoCapture::BLUE;
+
         // Rectify captures
-        pf::StereoCapture stereo(img, params.map);
+        pf::StereoCapture stereo(img, params.map, p);
         stereo.displayRectified();
 
         // Set mouse event listener
         cv::setMouseCallback("Disparity Map", mouseEvent, &stereo);
 
         // Compute disparity map
-        pf::DisparityMap *dm;
-
         if (method == 'a') dm = new pf::BM(stereo);
         if (method == 's') dm = new pf::SGBM(stereo);
         if (method == 'd') dm = new pf::ELAS(stereo);
 
-        dm->compute();
-        dm->displayMap();
+        if (dm) {
+            dm->compute();
+            dm->displayMap();
+        }
 
         // Read keys
         char c = (char)cv::waitKey(args.fromFile ? 0 : 30);
 
-        delete dm;
+        if (dm) {
+            delete dm;
+            dm = NULL;
+        }
 
         if (c == 27) break;
         if (c == 'a' || c == 's' || c == 'd') method = c;
