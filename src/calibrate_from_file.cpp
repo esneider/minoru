@@ -9,7 +9,7 @@
 #define NUM_HOR_SQUARES 7
 #define NUM_VER_SQUARES 5
 #define SQUARE_SIZE 1.f
-#define NUM_FRAMES 17
+#define NUM_FRAMES 21
 
 
 std::pair<pf::Corners, bool> findChessboardCorners(cv::Mat frame) {
@@ -32,7 +32,7 @@ std::pair<pf::Corners, bool> findChessboardCorners(cv::Mat frame) {
             corners,
             cv::Size(6, 6),
             cv::Size(-1, -1),
-            cv::TermCriteria(CV_TERMCRIT_EPS | CV_TERMCRIT_ITER, 100, DBL_EPSILON)
+            cv::TermCriteria(CV_TERMCRIT_EPS | CV_TERMCRIT_ITER, 50, DBL_EPSILON)
         );
     }
 
@@ -42,7 +42,7 @@ std::pair<pf::Corners, bool> findChessboardCorners(cv::Mat frame) {
 
 int main(int argc, char **argv) {
 
-    const char *path = "../samples/calibration_2/test_%s_%u.png";
+    const char *path = "../samples/calibration_4/test_%s_%u.png";
 
     pf::ImageCamera camera = pf::ImageCamera(path);
 
