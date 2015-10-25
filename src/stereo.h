@@ -190,10 +190,10 @@ namespace pf {
                 cv::split(capture, planes);
 
                 switch (p) {
-                    case ALL:   selected = capture;   break;
-                    case BLUE:  selected = planes[2]; break;
-                    case GREEN: selected = planes[1]; break;
-                    case RED:   selected = planes[0]; break;
+                    case ALL:   selected = capture; break;
+					case BLUE:  cv::cvtColor(planes[2], selected, CV_GRAY2BGR); break;
+					case GREEN: cv::cvtColor(planes[1], selected, CV_GRAY2BGR); break;
+					case RED:   cv::cvtColor(planes[0], selected, CV_GRAY2BGR); break;
                 }
 
                 Image gray, rectified;

@@ -72,10 +72,11 @@ void computeMouseWindow(int x, int y, pf::DisparityMap& map) {
         }
     }
 
-    std::cout << "Left button clicked at (" << x << ", " << y << ")" << std::endl;
-    std::cout << "\tmin_element = " << min_element << std::endl;
-    std::cout << "\tmax_element = " << max_element << std::endl;
-    std::cout << "\tmean = " << (all_elements / (double) num_elements) << std::endl;
+    //std::cout << "Left button clicked at (" << x << ", " << y << ")" << std::endl;
+    std::cout << "\t" << x << "\t" << y;
+    std::cout << "\t" << min_element;
+    std::cout << "\t" << max_element;
+    std::cout << "\t" << (all_elements / (double) num_elements) << std::endl;
 }
 
 
@@ -105,7 +106,7 @@ void computeDensity(pf::DisparityMap& map) {
     }
 
     double density = double(valid) / all;
-    std::cout << "Density: " << density << std::endl;
+    std::cout << "\t" << density;
 }
 
 
@@ -123,14 +124,15 @@ void mouseEvent(int event, int x, int y, int flags, void *data) {
 
         for (auto map: algs) {
 
-            std::cout << "Method: " << map->name << std::endl;
+            //std::cout << "Method: " << map->name << std::endl;
 
             clock_t begin = clock();
             map->compute();
             clock_t end = clock();
 
             double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
-            std::cout << "Time: " << elapsed_secs << std::endl;
+            //std::cout << "Time: " << elapsed_secs << std::endl;
+            std::cout << elapsed_secs;
 
             computeDensity(*map);
             computeMouseWindow(x, y, *map);
@@ -167,8 +169,10 @@ int main(int argc, char **argv) {
     }
 
     // Event loop
-    pf::StereoCapture::Plane p = pf::StereoCapture::ALL;
-    pf::DisparityMap *dm = NULL;
+    pf::DisparityMap *dm;
+    pf::StereoCapture::Plane p;
+
+	char plane = 'q';
     char method = 's';
 
     while (true) {
@@ -177,10 +181,11 @@ int main(int argc, char **argv) {
             camera->capture(img);
         }
 
-        if (method == 'q') p = pf::StereoCapture::ALL;
-        if (method == 'w') p = pf::StereoCapture::RED;
-        if (method == 'e') p = pf::StereoCapture::GREEN;
-        if (method == 'r') p = pf::StereoCapture::BLUE;
+		// Select color plane
+        if (plane == 'q') p = pf::StereoCapture::ALL;
+        if (plane == 'w') p = pf::StereoCapture::RED;
+        if (plane == 'e') p = pf::StereoCapture::GREEN;
+        if (plane == 'r') p = pf::StereoCapture::BLUE;
 
         // Rectify captures
         pf::StereoCapture stereo(img, params.map, p);
@@ -194,20 +199,16 @@ int main(int argc, char **argv) {
         if (method == 's') dm = new pf::SGBM(stereo);
         if (method == 'd') dm = new pf::ELAS(stereo);
 
-        if (dm) {
-            dm->compute();
-            dm->displayMap();
-        }
+        dm->compute();
+        dm->displayMap();
 
         // Read keys
         char c = (char)cv::waitKey(args.fromFile ? 0 : 30);
 
-        if (dm) {
-            delete dm;
-            dm = NULL;
-        }
+        delete dm;
 
         if (c == 27) break;
         if (c == 'a' || c == 's' || c == 'd') method = c;
+		if (c == 'q' || c == 'w' || c == 'e' || c == 'r') plane = c;
     }
 }
