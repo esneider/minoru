@@ -6,3 +6,8 @@
 rectify
 calibrate
 calibrate_from_file
+*.aux
+*.log
+*.pdf
+*.synctex.gz
+*.toc
