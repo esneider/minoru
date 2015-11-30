@@ -285,7 +285,7 @@ Tomando un punto \TwoCart{m} en la imagen \Plane{I_1}, consideramos la recta que
 
   \centering
     \includegraphics[width=0.6\textwidth]{f4.png}
-  \caption{Ilustración de la curva epipolar. [K98]}
+  \caption{Ilustración de la curva epipolar. \Cite{K98}}
 \end{figure}
 
 Para el caso de cámaras estereoscópicas, una vez corregidas las distorsiones explicadas en la sección \Section{2.2.3}, las curvas epipolares son proyecciones de rectas en un plano, y por lo tanto líneas rectas. Para realizar la búsqueda de puntos correspondientes de manera eficiente, se realiza una transformación en las imágenes captadas, de tal manera que todas las líneas epipolares queden paralelas y horizontales. Este proceso es llamado rectificación, y se explica en la sección siguiente.
@@ -325,7 +325,7 @@ La \Figure{6} ilustra el proceso de rectificación.
 
   \centering
     \includegraphics[width=1\textwidth]{f6.png}
-  \caption{Líneas epipolares en visión estéreo.}
+  \caption{Ilustración del proceso de rectificación.}
 \end{figure}
 
 Para llevar a cabo la rectificación se debe proceder como se describe a continuación.
@@ -367,7 +367,7 @@ Como se ilustra en la \Figure{7}, un punto 3D \ThreeCart{M} se puede calcular co
 
 Sean \TwoCart{c_{1e}}, \TwoCart{c_{2e}}, \TwoCart{m_{1e}}, \TwoCart{m_{2e}} y \TwoCart{m_e} las representaciones de  \ThreeCart{C_1}, \ThreeCart{C_2}, \TwoCart{m_1}, \TwoCart{m_2}, y \ThreeCart{M}, respectivamente, en el sistema de coordenadas del plano epipolar, tenemos que:
 \[
-	\TwoCart{m_e} = (\TwoCart{c_{1e}} \times \TwoCart{m_{1e}}) \times (\TwoCart{c_{2e}} \times \TwoCart{m_{2e}})
+	\Two{m_e} = (\Two{c_{1e}} \times \Two{m_{1e}}) \times (\Two{c_{2e}} \times \Two{m_{2e}})
 \]
 
 Lamentablemente, debido a que en la realidad los parámetros y coordenadas son aproximados, las lentes imperfectas, y hay ruido en las imágenes, en general las rectas $<\ThreeCart{C_1}, \TwoCart{m_1}>$ y $<\ThreeCart{C_2}, \TwoCart{m_2}>$ no se cortan en un punto. En estos casos la triangulación se plantea como un problema de minimización para encontrar el punto que mejor aproxima la intersección. En \Cite{HS97} se puede ver un análisis del problema y comparación de varios métodos para resolverlo.
