@@ -582,7 +582,111 @@ Del mismo modo, al medir la densidad se acotó la escena observable a aquellos s
 
 \subsubsection{Experimento 1}
 
+Los resultados obtenidos para el rango se presentan en la siguiente tabla:
+
+\begin{tabular}{ | l | c | c | c | }
+	\hline  
+	& BM & SGBM & ELAS \\
+	\hline  
+	Rango mínimo & Menor a 0,5 m & Menor a 0,5 m & Menor a 0,5 m \\
+	\hline  
+	Rango máximo & 1,83 m & 1,72 m & 1,83 m \\
+	\hline  
+\end{tabular}
+
+Si bien no se ha podido determinar la distancia mínima, los 3 métodos pueden realizar el cálculo de distancia de manera consistente a una distancia de 0,5 m, e incluso a distancias menores. En cuanto a la distancia máxima, la tabla ilustra en qué distancias se empiezan a notar inconsistencias para cada uno de los métodos, dejando en evidencia un rango un poco menor para SGBM.
+
+Las figuras 8, 9 y 10 muestran las imágenes tomadas en este experimento para cada uno de los métodos.
+
+\begin{figure}[h!]
+
+  \centering
+    \includegraphics[width=1\textwidth]{f8.png}
+  \caption{Mapas de disparidad obtenidos con BM. La imagen izquierda muestra el objeto a 0,5 m, y la imagen derecha muestra el objeto a 1,83 m.}
+\end{figure}
+
+\begin{figure}[h!]
+
+  \centering
+    \includegraphics[width=1\textwidth]{f9.png}
+  \caption{Mapas de disparidad obtenidos con SGBM. La imagen izquierda muestra el objeto a 0,5 m. La imagen derecha muestra el objeto a 1,72 m.}
+\end{figure}
+
+\begin{figure}[h!]
+
+  \centering
+    \includegraphics[width=1\textwidth]{f10.png}
+  \caption{Mapas de disparidad obtenidos con ELAS. La imagen izquierda muestra el objeto a 0,5 m. La imagen derecha muestra el objeto a 1,83 m.}
+\end{figure}
+
 \subsubsection{Experimento 2}
+
+En el anexo III se presenta una tabla con todas las mediciones de este experimento. Dada la gran cantidad de datos, aquí sólo se presenta una serie de gráficos y tablas para ayudar a interpretar estos datos.
+
+\paragraph{Factor de escala}
+\hfill \break
+La distancia medida por cada método se calcula mediante la formula:
+
+\[
+	distancia = \frac{ factor_{m\acute{e}todo} }{ medici\acute{o}n }
+\]
+
+Dado que cada método tiene un factor desconocido de escala, se calculó la escala media y su error porcentual, mediante las siguientes fórmulas:
+
+\[
+	factor_{m\acute{e}todo} = \frac{1}{\#capturas} \sum_{captura} {distancia \times medici\acute{o}n}
+\]
+
+\[
+	{\%\ error}_{m\acute{e}todo} = \frac{100 \  std_{captura}(distancia \times medici\acute{o}n)}{factor_{m\acute{e}todo}}
+\]
+
+Y los valores obtenidos son:
+
+\begin{tabular}{ | l | c | c | c | }
+	\hline  
+	& BM & SGBM & ELAS \\
+	\hline  
+	factor & 25,965 & 418,429 & 414,265 \\
+	\hline  
+	\% error & 1,031\% & 1,507\% & 1,520\% \\
+	\hline  
+\end{tabular}
+
+\paragraph{Errores}
+\hfill \break
+A continuación se muestra el histograma de todos los errores, y una tabla con la media, desviación estándar y percentil 95º de la muestra. A su vez, la \Figure{11} ilustra un histograma de todos los errores.
+
+\begin{tabular}{ | c | c | }
+	\hline  
+	& Error \\
+	\hline  
+	Media & 0,002 m \\
+	\hline  
+	Desviación estándar & 0,014 m \\
+	\hline
+	Percentil 95º & 0,028 m \\
+	\hline    
+\end{tabular}
+
+\begin{figure}[h!]
+
+  \centering
+    \includegraphics[width=0.7\textwidth]{f11.png}
+  \caption{Histograma de los errores de todas las mediciones.}
+\end{figure}
+
+\paragraph{Errores por método}
+\hfill \break
+Es interesante ver los errores diferenciados por método de obtención de disparidades:
+
+\begin{tabular}{ |c|c|c|c| }
+  \hline
+  & \multicolumn{3}{|c|}{Team sheet} \\
+  \hline
+  test & test & test & test \\
+  \hline
+\end{tabular}
 
 \newpage
 
