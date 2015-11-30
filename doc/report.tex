@@ -2,8 +2,8 @@
 
 % packages
 
-\usepackage[utf8]{inputenc}
 \usepackage[spanish]{babel}
+\usepackage[utf8]{inputenc}
 \usepackage{amsmath}
 \usepackage{amsfonts}
 \usepackage{amssymb}
@@ -62,7 +62,7 @@ Dada la importancia y diversidad del uso de esta información, durante los últi
 
 Los esfuerzos en resolver este problema presentan en la actualidad un conjunto extenso de algoritmos disponibles para solucionar esta cuestión, exponiendo distintos balances entre precisión y velocidad. Si bien existen diversos trabajos que comparan estos algoritmos de forma extensa, pocas fuentes informan sobre la viabilidad de dichos algoritmos en sistemas de bajos recursos.
 
-Este trabajo presenta un análisis y comparación de tres algoritmos evaluando precisión, tiempo y rango de los mismos en una cámara Minoru la cual es económica y de fácil obtención en el mercado. Además se expone un estudio sobre el uso de cámaras de este estilo y sus posibles aplicaciones.
+Este trabajo presenta un análisis y comparación de tres algoritmos evaluando precisión, tiempo, densidad y rango de los mismos en una cámara Minoru la cual es económica y de fácil obtención en el mercado. Además se expone un estudio sobre el uso de cámaras de este estilo y sus posibles aplicaciones.
 
 Los algoritmos estudiados son \textit{Block Matching} (BM) \Cite{K98}, \textit{Semi Global Block Matching} (SGBM) \Cite{H05} \Cite{EH08} y \textit{Efficient Large-scale Stereo} (ELAS) \Cite{GRU11}. Para la implementación de los primeros dos algoritmos se utilizó la librería OpenCV, mientras que para ELAS se utilizó LibELAS, librería producida por los autores del algoritmo original. Todos los algoritmos traen como resultado un mapa de disparidad. Un mapa de disparidad refiere a la distancia aparente de píxeles entre un par de imágenes estéreo. Para experimentar esta distancia obtenida, uno puede cerrar cada uno de los ojos de forma desfasada. Al hacer esto, los objetos más cercanos parecen moverse una distancia más significativa que los objetos más alejados. Como resultado, un mapa de disparidad permite visualizar en base a intensidades de grises o gamas de colores la profundidad de la escena. 
 
@@ -110,6 +110,13 @@ Para estudiar la matemática de un sistema de cámaras estéreo empezamos modela
 % Insert figure 1
 %%%%%%%%%
 
+\begin{figure}[h!]
+
+  \centering
+    \includegraphics[width=0.6\textwidth]{f1.png}
+  \caption{Modelo de cámara ideal.}
+\end{figure}
+
 \subsubsection{Matriz de la cámara}
 
 La principal propiedad del modelo de la cámara es que los puntos (pixels) en el plano retinal (imagen) son una proyección lineal de los puntos en el mundo:
@@ -135,6 +142,13 @@ En la \Figure{2} se puede observar el caso general, en el cual los orígenes de 
 %%%%%%%%%
 % Insert figure 2
 %%%%%%%%%
+
+\begin{figure}[h!]
+
+  \centering
+    \includegraphics[width=0.6\textwidth]{f2.png}
+  \caption{Modelo de una cámara (caso generalizado).}
+\end{figure}
 
 Hacer un cambio de coordenadas en el plano retinal equivale a multiplicar \Mat{P} por izquierda por una matriz \Mat{A} de $3 \times 3$, y un cambio de coordenadas en el espacio del mundo equivale a multiplicar \Mat{P} por derecha por una matriz \Mat{D} de $4 \times 4$:
 \[
@@ -183,6 +197,13 @@ La distorsión radial hace que líneas rectas en el espacio aparezcan curvas en 
 %%%%%%%%%
 % Insert figure 3
 %%%%%%%%%
+
+\begin{figure}[h!]
+
+  \centering
+    \includegraphics[width=1\textwidth]{f3.png}
+  \caption{Fotografía con distorsión radial de un tablero de ajedrez.}
+\end{figure}
 
 Esta distorsión se puede corregir usando el modelo de Brown–Conrady (ver \Cite{B66}):
 \begin{align*}
@@ -260,6 +281,13 @@ Tomando un punto \TwoCart{m} en la imagen \Plane{I_1}, consideramos la recta que
 % Insert figure 4
 %%%%%%%%%
 
+\begin{figure}[h!]
+
+  \centering
+    \includegraphics[width=0.6\textwidth]{f4.png}
+  \caption{Ilustración de la curva epipolar. [K98]}
+\end{figure}
+
 Para el caso de cámaras estereoscópicas, una vez corregidas las distorsiones explicadas en la sección \Section{2.2.3}, las curvas epipolares son proyecciones de rectas en un plano, y por lo tanto líneas rectas. Para realizar la búsqueda de puntos correspondientes de manera eficiente, se realiza una transformación en las imágenes captadas, de tal manera que todas las líneas epipolares queden paralelas y horizontales. Este proceso es llamado rectificación, y se explica en la sección siguiente.
 
 Supongamos que ambas cámaras observan un punto \ThreeCart{M}. Como se puede observar en la \Figure{5}, en la proyección de la cámara izquierda podemos definirlo como \ThreeCart{M_1} y en la cámara derecha como \ThreeCart{M_2}. A su vez, las cámaras tienen centros de proyección definidos como \ThreeCart{C_1}  y \ThreeCart{C_2}. Luego podemos proyectar cada centro de proyección hasta el plano de imagen de la otra cámara. El punto de intersección se denomina \textbf{punto epipolar} que notaremos como \TwoCart{e_1} y \TwoCart{e_2}.
@@ -269,6 +297,13 @@ Si bien el segmento que une a los puntos \ThreeCart{C_1} y \ThreeCart{M} es vist
 %%%%%%%%%
 % Insert figure 5
 %%%%%%%%%
+
+\begin{figure}[h!]
+
+  \centering
+    \includegraphics[width=0.8\textwidth]{f5.png}
+  \caption{Líneas epipolares en visión estéreo.}
+\end{figure}
 
 A su vez, como visualización alternativa, podemos definir al plano que une a los puntos \ThreeCart{M}, \ThreeCart{C_1} y \ThreeCart{C_2} como plano epipolar que intersecta a los planos de ambas imágenes.
 
@@ -286,9 +321,16 @@ La \Figure{6} ilustra el proceso de rectificación.
 % Insert figure 6
 %%%%%%%%%
 
+\begin{figure}[h!]
+
+  \centering
+    \includegraphics[width=1\textwidth]{f6.png}
+  \caption{Líneas epipolares en visión estéreo.}
+\end{figure}
+
 Para llevar a cabo la rectificación se debe proceder como se describe a continuación.
 
-En primer lugar, se da por sentado que se cuenta con la matriz interna de ambas cámaras (\Mat{A}), sus matrices de rotación (\Mat{R}) y sus vectores de traslación (\ThreeCart{T}). Estos datos han sido obtenidos en la fase de calibración. Así, podemos construir la matriz de proyección de la siguiente manera (donde $n$ puede hacer referencia a cualquiera de las cámaras):
+En primer lugar, se da por sentado que se cuenta con la matriz interna de ambas cámaras (\Mat{A_1} y \Mat{A_2}), sus matrices de rotación (\Mat{R_1} y \Mat{R_2}) y sus vectores de traslación (\ThreeCart{T_1} y \ThreeCart{T_2}). Estos datos han sido obtenidos en la fase de calibración. Así, podemos construir la matriz de proyección de la siguiente manera (donde $n$ puede hacer referencia a cualquiera de las cámaras):
 \[
 	\Mat{P_n} = \Mat{A_n} \left[ \Mat{R_n} | \ThreeCart{T_n} \right]
 \]
@@ -316,9 +358,16 @@ Como se ilustra en la \Figure{7}, un punto 3D \ThreeCart{M} se puede calcular co
 % Insert figure 7
 %%%%%%%%%
 
+\begin{figure}[h!]
+
+  \centering
+    \includegraphics[width=0.7\textwidth]{f7.png}
+  \caption{Ilustración del proceso de triangulación.}
+\end{figure}
+
 Sean \TwoCart{c_{1e}}, \TwoCart{c_{2e}}, \TwoCart{m_{1e}}, \TwoCart{m_{2e}} y \TwoCart{m_e} las representaciones de  \ThreeCart{C_1}, \ThreeCart{C_2}, \TwoCart{m_1}, \TwoCart{m_2}, y \ThreeCart{M}, respectivamente, en el sistema de coordenadas del plano epipolar, tenemos que:
 \[
-	\Two{m_e} = (\Two{c_{1e}} \times \Two{m_{1e}}) \times (\Two{c_{2e}} \times \Two{m_{2e}})
+	\TwoCart{m_e} = (\TwoCart{c_{1e}} \times \TwoCart{m_{1e}}) \times (\TwoCart{c_{2e}} \times \TwoCart{m_{2e}})
 \]
 
 Lamentablemente, debido a que en la realidad los parámetros y coordenadas son aproximados, las lentes imperfectas, y hay ruido en las imágenes, en general las rectas $<\ThreeCart{C_1}, \TwoCart{m_1}>$ y $<\ThreeCart{C_2}, \TwoCart{m_2}>$ no se cortan en un punto. En estos casos la triangulación se plantea como un problema de minimización para encontrar el punto que mejor aproxima la intersección. En \Cite{HS97} se puede ver un análisis del problema y comparación de varios métodos para resolverlo.
@@ -339,13 +388,13 @@ Los métodos de obtención de correspondencias pueden ser categorizados entre \t
 
 Los métodos locales pueden ser subclasificados según busquen correspondencias entre \textit{características} discretas, o entre pequeñas \textit{áreas} de la imagen. Las características elegidas suelen ser independientes de la iluminación y del punto de vista, como por ejemplo esquinas de objetos. Los algoritmos basados en características funcionan especialmente bien cuando hay grandes diferencias entre los puntos de vista de las cámaras, o distintos tipos de cámaras, encontrando correspondencias de manera rápida y robusta. Sin embargo, tienen la desventaja de requerir una etapa previa de extracción de características potencialmente compleja, y los resultados (pares de puntos correspondientes) son poco densos.
 
-Los métodos basados en área comparan pequeñas secciones de las imágenes. Hay un tradeoff con el área de estas secciones: áreas más chicas tienen más chances de ser detectadas en ambas imágenes, y áreas más grandes incrementan la proporción señal/ruido. A diferencia de los métodos basados en características, estos métodos producen resultados densos. Dado que no necesitan extraer características y que suelen tener estructuras algorítmicas muy regulares (ej. convoluciones), pueden implementarse de manera eficiente.
+Los métodos basados en área comparan pequeñas secciones de las imágenes. Hay una relación de compromiso con el área de estas secciones: áreas más chicas tienen más chances de ser detectadas en ambas imágenes, y áreas más grandes incrementan la proporción señal/ruido. A diferencia de los métodos basados en características, estos métodos producen resultados densos. Dado que no necesitan extraer características y que suelen tener estructuras algorítmicas muy regulares (ej. convoluciones), pueden implementarse de manera eficiente.
 
 A continuación se presentan tres algoritmos de obtención de correspondencias.
 
 \subsection{Block Matching}
 
-Konolige \Cite{K98} propone un algoritmo que permite la obtención de un mapa de disparidad a través del análisis de bloques dentro de las imágenes. Con el tiempo, BM (Block Matching) se ha vuelto el acercamiento más común e intuitivo para el cálculo de disparidades. La idea de un algoritmo que se basa en el análisis de áreas de la imagen consiste en deslizar un bloque tomado de una imagen sobre la segunda. Por cada movimiento del bloque se calcula un error. Originalmente, este algoritmo surge de la necesidad de calcular diferencias de movimiento entre dos imágenes. Dado el error encontrado en la correspondencia de bloques, se pueden encontrar la disparidad de los puntos en los bloques.
+Konolige \Cite{K98} propone un algoritmo que permite la obtención de un mapa de disparidad a través del análisis de bloques dentro de las imágenes. Con el tiempo, BM (Block Matching) se ha vuelto el enfoque más común e intuitivo para el cálculo de disparidades. La idea de un algoritmo que se basa en el análisis de áreas de la imagen consiste en deslizar un bloque tomado de una imagen sobre la segunda. Por cada movimiento del bloque se calcula un error. Originalmente, este algoritmo surge de la necesidad de calcular diferencias de movimiento entre dos imágenes. Dado el error encontrado en la correspondencia de bloques, se pueden encontrar la disparidad de los puntos en los bloques.
 
 Puntualmente el algoritmo propuesto por Konolige busca una correlación en los bloques tras aplicar la transformada LOG (transformada del laplaciano sobre el gaussiano) con norma L1. Konolige decide el uso de esta transformada con esta norma dado que obtiene resultados de buena calidad que son optimizables dado el conjunto de instrucciones disponibles en el hardware utilizado por el autor en el momento de desarrollo. Los cálculos de disparidad se realizan en áreas de 16, 24 o 32 píxeles. Por último, el algoritmo aplica dos funciones para filtrar los resultados. El primer operador aplicado para filtrar los resultados mide las texturas en dirección a las líneas epipolares. Este operador es el propuesto por Matthies \Cite{M93}. Si bien este operador requiere una cota, la obtención de este valor se vuelve sencilla basándose en el ruido presentado en las imágenes de entrada. Tras aplicar el operador de Matthies, siguen presentándose errores causados por bloques correlativos solapados en áreas con disparidades muy distintas. Para eliminar estos errores se aplica un operador de izquierda/derecha \Cite{BW93}. En los resultados provistos por Konolige, la combinación de ambos operadores demuestra ser efectiva al eliminar falsos positivos teniendo en cuenta el rendimiento del algoritmo.
 
@@ -427,10 +476,27 @@ Dado $S$ y un punto $o_n^{(l)}$ se calcula una disparidad $d_n$ mediante la prob
 % Insert equation
 %%%%%%%%%
 
+\[
+	p(d_{n}|S,o_{n}^{(l)})\alpha
+	\begin{cases}
+	  \gamma + \text{exp} [ - (d_{n} - \mu(S,o_{n}^{(l)})^{2}) / 2 \sigma^{2} ] & \text{si } |d_{n} - \mu| < 3\sigma \vee d_{n} \in N_{S} \\
+	  0 & \text{en cualquier otro caso}.
+	\end{cases}
+\]
+
+
 Contando con estos datos podemos expresar la probabilidad de correspondencia con un punto $o_n^{(r)}$ con una distribución Laplaciana de la siguiente manera:
 %%%%%%%%%
 % Insert equation
 %%%%%%%%%
+
+\[
+	p(o_{n}^{(r)}|o_{n}^{(l)},d_{n})\alpha
+	\begin{cases}
+	  \text{exp} ( - \beta || f_{n}^{(l)} - f_{n}^{(r)} ||_{1}) & \text{si } \binom{u_{n}^{(l)}}{v_{n}^{(l)}} = \binom{u_{n}^{(r)} + d_{n}}{v_{n}^{(r)}}\\
+	  0 & \text{en cualquier otro caso}.
+	\end{cases}
+\]
 
 Una vez definidos los puntos correspondientes basta con calcular la disparidad entre estos puntos para la generación del mapa de disparidad. Para este cálculo se utiliza una estimación \textbf{máximo a-posteriori} (MAP).
 
@@ -438,15 +504,15 @@ Una vez definidos los puntos correspondientes basta con calcular la disparidad e
 
 \section{Comparación entre los algoritmos}
 
-Este capítulo tiene como propósito comparar experimentalmente los distintos métodos de obtención de un mapa de disparidad. Para esto se definen las métricas a medir y el conjunto de experimentos a realizar. Además, se discute en detalle la implementación realizada y los entornos sobre los cuales se realizaron las pruebas.
+Este capítulo tiene como propósito comparar experimentalmente los tres métodos de obtención de un mapa de disparidad. Para esto se definen los indicadores a medir y el conjunto de experimentos a realizar. Además, se discute en detalle la implementación realizada y los entornos sobre los cuales se realizaron las pruebas.
 
-\subsection{Métricas}
+\subsection{Indicadores}
 
-No todos los métodos son igual de efectivos en las mismas escenas, ni todas las cámaras funcionan igual de bien en distintos escenarios. Por lo tanto, se toman en cuenta distintas métricas para poder evaluar las fortalezas y debilidades de cada método en general, y de la cámara utilizada en particular.
+No todos los métodos son igual de efectivos en las mismas escenas, ni todas las cámaras funcionan igual de bien en distintos escenarios. Por lo tanto, se toman en cuenta distintos indicadores para poder evaluar las fortalezas y debilidades de cada método en general, y de la cámara utilizada en particular.
 
 \subsubsection{Precisión}
 
-En los experimentos realizados se presentan objetos a distancias conocidas. Comparando estas distancias con las distancias calculadas por un método, se puede calcular el error medio de este.
+En los experimentos realizados se presentan objetos a distancias conocidas. Comparando estas distancias con las distancias calculadas por un método, se puede calcular la media del error como:
 
 \[
 	error=\frac{1}{\#capturas}\sum_{captura}\left|d_{conocida}-d_{calculada}\right|
@@ -460,21 +526,13 @@ Para determinar la densidad de información de profundidad media de cada método
 	densidad = \frac{1}{\#capturas} \sum_{captura} {\frac{\#pixeles\ con\ informacion}{\#pixeles\ por\ captura}}
 \]
 
-\subsubsection{Resolución}
-
-Se llama resolución de la cámara a la máxima separación ($s$) de dos objetos alineados con la cámara (ubicados a distancias $d$ y $d+s$), tal que se detecta la misma distancia para los dos objetos, utilizando alguno de los métodos.
-
-\[
-	resolucion(\mathbf{d}) = \mathbf{s}
-\]
-
 \subsubsection{Rango}
 
 Se llama rango de la cámara al intervalo de distancia frente a esta en el cual, si se coloca un objeto, se puede calcular de manera confiable la distancia al objeto, utilizando alguno de los métodos.
 
 \subsubsection{Recursos}
 
-Finalmente, se mide el tiempo de ejecución medio de cada algoritmo.
+Finalmente, se mide la media del tiempo de ejecución de cada algoritmo.
 
 \[
 	tiempo = \frac{1}{\#capturas} \sum_{captura} {t_{final} - t_{inicial}}
@@ -482,9 +540,9 @@ Finalmente, se mide el tiempo de ejecución medio de cada algoritmo.
 
 \subsection{Experimentos realizados}
 
-Se realizaron tres experimentos con el objetivo de calcular las métricas expuestas. El objetivo del primer experimento fue medir el rango de la cámara, el del segundo la precisión, densidad y recursos y, finalmente, la resolución en el tercero.
+Se realizaron dos experimentos con el objetivo de calcular los indicadores expuestos. El objetivo del primer experimento fue medir el rango de la cámara, mientras que el del segundo fue medir la precisión, densidad y recursos.
 
-En los experimentos 1 y 3 se utilizó como objeto de prueba un objeto rectangular, opaco y de alto contraste (una consola Playstation II), para el cual se observó de manera empírica que producía buenos resultados consistentemente. Para el experimento 2 se agregaron también una pelota y un objeto rectangular de menor tamaño (un porta tarjetas).
+En el experimento 1 se utilizó como objeto de prueba un objeto rectangular, opaco y de alto contraste (una consola Playstation II), para el cual se observó de manera empírica que producía buenos resultados consistentemente. Para el experimento 2 se agregaron también una pelota y un objeto rectangular de menor tamaño (un porta tarjetas).
 
 \subsubsection{Experimento 1}
 
@@ -503,16 +561,6 @@ Este segundo experimento consiste en 9 escenas, en donde cada escena es una comb
 \textbf{Nota}: Las distancias reales son ligeramente distintas debido a la altura en la que se posiciona la cámara. Estas diferencias son tomadas en cuenta a la hora de calcular los resultados. Cabe aclarar que todas las distancias están dentro de los rangos obtenidos en el experimento 1, exhibidos en la sección de resultados.
 
 Para cada escena se tomaron 3 capturas y se ejecutaron todos los métodos sobre cada una de ellas. Para cada captura se midió la precisión, densidad y recursos utilizados.
-
-\subsubsection{Experimento 3}
-
-En este experimento se consideraron 28 escenas, en las que se colocó un objeto a distancia $d+s$, para los siguientes valores:
-\begin{enumerate}
-	\item \textbf{d}: $0,3 m$; $0,65 m$; $1 m$
-	\item \textbf{s}: $0 m$; $0,01 m$; $0,02 m$; $0,03 m$
-\end{enumerate}
-
-Para cada escena se tomaron 3 capturas.
 
 \subsection{Entorno de prueba}
 
@@ -535,8 +583,6 @@ Del mismo modo, al medir la densidad se acotó la escena observable a aquellos s
 \subsubsection{Experimento 1}
 
 \subsubsection{Experimento 2}
-
-\subsubsection{Experimento 3}
 
 \newpage
 
