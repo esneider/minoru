@@ -9,6 +9,21 @@
 \usepackage{amssymb}
 \usepackage{graphicx}
 \usepackage{titling}
+\usepackage{microtype}
+\usepackage{listings}
+\usepackage{xcolor}
+\newsavebox\thmbox
+\newtheorem{mytheorem}{}
+\newenvironment{theorem}%
+  {\begin{lrbox}{\thmbox}%
+   \begin{minipage}{\dimexpr\linewidth-2\fboxsep}
+   \begin{mytheorem}}%
+  {\end{mytheorem}%
+   \end{minipage}%
+   \end{lrbox}%
+   \begin{trivlist}
+     \item[]\colorbox{lightgray}{\usebox\thmbox}
+   \end{trivlist}}
 
 % commands
 
@@ -692,8 +707,249 @@ Es interesante ver los errores diferenciados por método de obtención de dispar
 
 \section{Conclusiones y trabajo futuro}
 
+Este último capítulo tiene como objetivo discutir las conclusiones obtenidas, basadas en los resultados de la experimentación, cerrando este informe con un análisis de la obtención de profundidades mediante cámaras estéreo.
+
+En primer lugar, a diferencia de lo que se creía originalmente, durante la etapa de experimentación se encontró que el rango no sólo depende de la cámara, sino que también depende del método. Si bien todos los métodos proveen resultados precisos para distancias cortas (0,5 m), a distancias más grandes empiezan a aparecer algunas diferencias. Puntualmente, SGBM tiene un rango menor a los otros dos métodos.
+
+En cuanto a la precisión de la cámara, de forma general se puede decir que los errores obtenidos tienen una distribución similar a una normal. Los errores obtenidos tienen una media, un desvío estándar y un percentil que indican una alta precisión dentro del rango estudiado (con un error menor a 2 cm).
+
+Al evaluar los errores encontrados en la precisión distinguidos por método se puede ver que ELAS es ligeramente superior al resto de los métodos. Si bien BM y SGBM comparten los órdenes de magnitud de estos errores, las muestras concretas indican una leve mejoría al obtener el mapa de disparidad utilizando BM.
+Haciendo un análisis más profundo de estos errores podemos ver que los errores en ELAS tienen una forma similar a una distribución uniforme mientras que los errores en BM y SGBM parecerían seguir a una distribución normal centradas en 0. Tanto BM como SGBM presentan una tendencia a introducir casos espurios.
+Si en vez de enfocarnos en los métodos nos enfocamos en los objetos medidos se puede ver que objetos pequeños y con esquinas definidas como el caso del porta tarjetas traen los mejores resultados. De forma opuesta, la pelota es el caso que más casos espurios y errores presenta. De manera general se ve que independientemente del objeto, las curvas que representan a los errores tienen la forma de una distribución normal independientemente del método.
+Como último dato al medir los errores de precisión aparece un pequeño análisis en cuanto a las distancias a medir. Si bien todas las curvas vuelven a tomar la forma de una distribución normal, al aumentar la distancia a medir aparecen más casos espurios aumentando el desvío estándar. De la misma manera, los errores comienzan a ser un poco más significativos.
+
+La medición de los tiempos de procesamiento de los algoritmos muestran que todos comparten los órdenes de magnitud de esta métrica. Sin embargo, en un análisis más profundo se puede ver que BM no solo tiene tiempos un poco más rápidos, sino que al analizar la curva que se forma se puede notar un detalle interesante. Mientras que SGBM y ELAS parecerían tomar la forma de una distribución normal, BM toma la forma de una distribución de cola larga, indicando una predicción notable para este último algoritmo.
+
+Por último, es importante hablar sobre las densidades que presenta cada uno de los algoritmos. Como es esperado, BM cuenta con una densidad notoriamente menor a los otros algoritmos. Esto es inherente al algoritmo ya que BM únicamente indica los bordes de los objetos encontrados. Si bien la diferencia entre SGBM y ELAS es menor, se puede ver que SGBM no solo posee una mayor densidad sino que también que su desvío estándar es menor que el de ELAS.
+
 \newpage
 
 \section{Bibliografía}
+
+\textbf{[CM03]} Coxeter, H. and Macdonald, S. "Projective geometry". Springer Science \& Business Media (2003).
+
+\textbf{[EL03]} Elias, R. and Laganiere, R. "Projective geometry for three-dimensional computer vision". Paper in Viva Research Lab (2003).
+
+\textbf{[B66]} Brown, D. "Decentering distortion of lenses". Photometric Engineering 32.3 (1966): 444-462.
+
+\textbf{[Z00]} Zhang, Z. "A flexible new technique for camera calibration". Pattern Analysis and Machine Intelligence, IEEE Transactions on 22.11 (2000): 1330-1334.
+
+\textbf{[Z04]} Zhang, Z. "Camera Calibration". Emerging topics in computer vision (2004): 4-43.
+
+\textbf{[HS97]} Hartley, R. and Sturm, P. "Triangulation". Computer vision and image understanding 68.2 (1997): 146-157.
+
+\textbf{[BT98]} Birchfield, S. and Tomasi, C. "A pixel dissimilarity measure that is insensitive to image sampling". Pattern Analysis and Machine Intelligence, IEEE Transactions on 20.4 (1998): 401-406.
+
+\textbf{[T12]} Tippetts, B. "Real-Time Stereo Vision for Resource Limited Systems". (2012).
+
+\textbf{[K98]} Konolige, K. "Small vision systems: Hardware and implementation". Robotics Research. Springer London (1998): 203-212.
+
+\textbf{[GRU11]} Geiger, A., Roser, M. and Urtasun, R. "Efficient large-scale stereo matching". Computer Vision–ACCV 2010. Springer Berlin Heidelberg (2011): 25-38.
+
+\textbf{[M93]} Matthies, L. "Stereo vision for planetary rovers: stochastic modeling to near realtime implementation". IJCV 8(1) (1993): 71-91.
+
+\textbf{[BW93]} Bolles, R. and Woodfill, J. "Spatiotemporal consistency checking of passive range data". In International Symposium on Robotics Research, Vol. 32 (1993): 37.
+
+\textbf{[H05]} Hirschmüller, H. "Accurate and efficient stereo processing by semi-global matching and mutual information". In Computer Vision and Pattern Recognition, 2005. CVPR 2005. IEEE Computer Society Conference on Vol. 2. IEEE (2005): 807-814.
+
+\textbf{[EH08]} Ernst, I. and Hirschmüller, H. "Mutual information based semi-global stereo matching on the GPU". In Advances in Visual Computing. Springer Berlin Heidelberg. (2008): 228-239.
+
+\textbf{[H08]} Hirschmüller, H. "Stereo processing by semiglobal matching and mutual information". Pattern Analysis and Machine Intelligence, IEEE Transactions on 30.2 (2008): 328-341.
+
+\textbf{[SS02]} Scharstein, D. and Szeliski, R. (2002). "A taxonomy and evaluation of dense two-frame stereo correspondence algorithms". International journal of computer vision, 47(1-3), 7-42.
+
+\begin{sloppypar}
+\textbf{[OCV1]} http:\slash\slash docs.opencv.org\slash modules\slash calib3d\slash doc\slash camera\_calibration\_and\_3d\_reconstruction.html\#findchessboardcorners
+
+\textbf{[OCV2]} http:\slash \slash docs.opencv.org\slash modules\slash imgproc\slash doc\slash feature\_detection.html\#cornersubpix
+
+\textbf{[OCV3]} http:\slash \slash docs.opencv.org\slash modules\slash calib3d\slash doc\slash camera\_calibration\_and\_3d\_reconstruction.html\#calibratecamera
+
+\textbf{[OCV4]} http:\slash \slash docs.opencv.org\slash modules\slash calib3d\slash doc\slash camera\_calibration\_and\_3d\_reconstruction.html\#stereocalibrate
+
+\textbf{[OCV5]} http:\slash \slash docs.opencv.org\slash modules\slash calib3d\slash doc\slash camera\_calibration\_and\_3d\_reconstruction.html\#stereorectify
+
+\textbf{[OCV6]} http:\slash \slash docs.opencv.org\slash modules\slash imgproc\slash doc\slash geometric\_transformations.html\#initundistortrectifymap
+
+\textbf{[OCV7]} http:\slash \slash docs.opencv.org\slash modules\slash calib3d\slash doc\slash camera\_calibration\_and\_3d\_reconstruction.html\#stereobm
+
+\textbf{[OCV8]} http:\slash \slash docs.opencv.org\slash modules\slash calib3d\slash doc\slash camera\_calibration\_and\_3d\_reconstruction.html\#stereosgbm
+\end{sloppypar}
+
+\textbf{[ELAS]} http://www.cvlibs.net/software/libelas/
+
+\newpage
+
+\section{Anexo I - Configuración de la Minoru}
+
+La Webcam 3D Minoru es una cámara estereoscópica producida por Promotion and Display Technology of Salford, Greater Manchester lanzado en Enero del 2009.
+
+La misma consiste en dos cámaras que se conectan a través de un puerto USB. Al poseer 2 cámaras puede reproducir imágenes 3D en donde cada cuadro puede variar entre 320x240 hasta 800x600 píxeles a una capacidad de 30 cuadros por segundo. Contiene 2 sensores VGA CMOS de 640x480 pixeles, lentes de ángulo ancho y un micrófono. Actualmente es obtenible en el mercado por 40 dólares.
+
+Al obtener una cámara Minoru en su empaque original, la misma adjunta un CD que contiene un software utilizable en sistemas operativos de la familia Windows el cual permite ver imágenes 3D de forma rápida y sencilla.
+
+Para el estudio presente se utilizó esta cámara en entornos UNIX encontrando ciertas dificultades en su uso, las cuales se encuentran aquí documentadas.
+
+En primer lugar, acceder a más de una cámara mediante puertos USB en UNIX resulta en el siguiente error:
+
+\begin{theorem}
+libv4l2: error turning on stream: No space left on device VIDIOC\_STREAMON: No space left on device
+\end{theorem}
+
+Esto sucede ya que las cámaras intentan utilizar todo el ancho de banda disponible en el controlador USB, superando el ancho de banda disponible. Se puede resolver a través de los siguientes comandos.
+
+\begin{theorem}
+sudo rmmod uvcvideo 
+\end{theorem}
+
+\begin{theorem}
+sudo modprobe uvcvideo quirks=128
+\end{theorem}
+
+Estos comandos fuerzan a las cámaras a calcular el uso del ancho de banda en vez de utilizar el máximo, haciendo que el error desaparezca. Sin embargo, dada esta configuración, la resolución máxima que hemos podido obtener de las cámaras es de 640x480 píxeles a una capacidad de 23 cuadros por segundo. Cabe destacar que el número de quirks seleccionados no representa una cantidad, sino una máscara de bits que indica el modo en el que funcionara el módulo uvcvideo.
+A pesar de los esfuerzos tratando de acceder a las cámaras mediante las funciones estándar en las librerías de OpenCV en OS X 10.10 (Yosemite), resulta imposible obtener información de ambas cámaras en simultáneo, generando un error en tiempo de ejecución. En Ubuntu 14.04 no se presenta este problema, pudiendo acceder a ambas cámaras como es esperado.
+
+Por último, es importante mencionar que conectar una cámara Minoru en un puerto USB 3.0 trae diversos problemas, incluyendo la falta de capacidad para acceder a ambas cámaras en simultáneo y fallas en el driver del puerto.
+
+\newpage
+
+\section{Anexo II - Procedimiento en OpenCV}
+
+Este anexo tiene como propósito documentar el procedimiento utilizado en el programa que obtiene el mapa de disparidad, utilizando funciones de OpenCV. Para esto se enumeran las funciones fundamentales especificando los parámetros de configuración. La implementación realizada fue hecha en C++.
+
+De forma complementaria se utiliza la librería LibELAS.
+
+Los criterios y parámetros utilizados son aquellos que de forma empírica han obtenido los mejores resultados.
+
+Lo primero que se hace es la calibración de las cámaras. Para esto, primero, se utiliza la función \textbf{findChessboardCorners} \textbf{[OCV1]} la cual tiene como objetivo encontrar las esquinas internas de un tablero de ajedrez. Se utilizan los flags \textbf{CV\_CALIB\_CB\_ADAPTIVE\_THRESH} y \textbf{CV\_CALIB\_CB\_NORMALIZE\_IMAGE}. El primer flag indica que se usa una cota adaptativa para convertir la imagen a blanco y negro en vez de usar una cota fija. El segundo flag obliga a normalizar la imagen gamma antes de aplicar la cota antes mencionada.
+
+\begin{sloppypar}
+Para mejorar la precisión se utiliza función \textbf{cornerSubPix} \textbf{[OCV2]} utilizando como criterio \textbf{TermCriteria(CV\_TERMCRIT\_EPS | CV\_TERMCRIT\_ITER, 30, 0.1)}.
+\textbf{CV\_TERMCRIT\_EPS} y \textbf{CV\_TERMCRIT\_ITER} le indica al algoritmo que la terminación del mismo será luego de que los resultados convergen a cierto valor o luego de determinada cantidad de iteraciones. Los siguientes parámetros indican los valores de terminación concretamente.
+\end{sloppypar}
+
+La calibración se realiza primero calibrando cada cámara por separado utilizando la función \textbf{calibrateCamera} \textbf{[OCV3]} y luego utilizando la función \textbf{stereoCalibrate} \textbf{[OCV4]}.
+
+\begin{sloppypar}
+Para \textbf{calibrateCamera} se utiliza como flag únicamente \textbf{CV\_CALIB\_FIX\_K3} lo cual indica que el parámetro de distorsión radial K3 (sección 2.2.3) no es modificado durante la optimización. Como criterio se utiliza \textbf{TermCriteria(CV\_TERMCRIT\_ITER | CV\_TERMCRIT\_EPS, INT\_MAX, DBL\_EPSILON)}.
+\end{sloppypar}
+
+En \textbf{stereoCalibrate} se utiliza el mismo criterio y los mismos flags que en \textbf{calibrateCamera} pero se agrega el flag \textbf{CV\_CALIB\_FIX\_INTRINSIC}. Esto indica que las matrices de las cámaras y los coeficientes de distorsión son fijados, de modo tal que sólo las matrices R, T, E, y F sean estimadas.
+
+Luego se pasa a realizar la rectificación mediante la función \textbf{stereoRectify} \textbf{[OCV5]}. Se utilizan los parámetros por defecto de OpenCV (utilizando alpha como -1 y el flag \textbf{CV\_CALIB\_ZERO\_DISPARITY} el cual hace que los puntos principales de cada cámara tengan las mismas coordenadas en las vistas rectificadas).
+Para finalizar la rectificación, se utiliza la función \textbf{initUndistortRectifyMap} \textbf{[OCV6]} la cual calcula los mapas de transformación para cada una de las imágenes.
+
+Dependiendo del algoritmo elegido se utilizan las estructuras apropiadas, siendo estos StereoBM \textbf{[OCV7]}, StereoSGBM \textbf{[OCV8]} y ELAS \textbf{[ELAS]}.
+
+Los parámetros utilizados para SGBM son los siguientes:
+
+\begin{theorem}
+sgbm.SADWindowSize = 5;
+\end{theorem}
+
+Esto indica el tamaño de las ventanas que serán comparadas entre ambas imágenes.
+
+\begin{theorem}
+sgbm.numberOfDisparities = 192;
+\end{theorem}
+
+Esto indica el rango de disparidades buscadas se encuentra en [minDisparity, minDisparity+numberOfDisparities].
+
+\begin{theorem}
+sgbm.preFilterCap = 4;
+\end{theorem}
+
+Se define una cota para los valores de salida a [-preFilterCap, preFilterCap]
+
+\begin{theorem}
+sgbm.minDisparity = -64;
+\end{theorem}
+
+Se define el menor valor de disparidad que es tomado en cuenta.
+
+\begin{theorem}
+sgbm.uniquenessRatio = 1;
+\end{theorem}
+
+Este valor define otro filtro para los valores aceptados por las disparidades.
+
+\begin{theorem}
+sgbm.speckleWindowSize = 150;
+\end{theorem}
+
+Este valor es el tamaño máximo de regiones de disparidad para considerar (e invalidar) ruido Speckle.
+
+\begin{theorem}
+sgbm.speckleRange = 2;
+\end{theorem}
+
+Esto define la máxima variación de las disparidades entre cada componente conectado.
+
+\begin{theorem}
+sgbm.disp12MaxDiff = 10;
+\end{theorem}
+
+Bajo este valor se marca la diferencia permitida (en cantidad de píxeles) al hacer el chequeo izquierdo-derecho de disparidad.
+
+\begin{theorem}
+sgbm.fullDP = false;
+\end{theorem}
+
+Al indicar este parámetro como falso, se utiliza una versión menos optimizada del algoritmo, mucho más económico en el uso de la memoria.
+
+\begin{theorem}
+sgbm.P1 = 600;
+\end{theorem}
+\begin{theorem}
+sgbm.P2 = 2400;
+\end{theorem}
+
+Estos parámetros indican la suavidad de la disparidad. Cuanto más grandes son estos valores, mejores son los resultados. Ambos valores aplican castigos a la diferencia de disparidad entre píxeles vecinos.
+
+
+Los parámetros utilizados para BM son los siguientes:
+
+\begin{theorem}
+sbm.state->SADWindowSize = 9;
+\end{theorem}
+\begin{theorem}
+sbm.state->speckleWindowSize = 0;
+\end{theorem}
+\begin{theorem}
+sbm.state->speckleRange = 8;
+\end{theorem}
+\begin{theorem}
+sbm.state->disp12MaxDiff = 1;
+\end{theorem}
+\begin{theorem}
+sbm.state->numberOfDisparities = 112;
+\end{theorem}
+\begin{theorem}
+sbm.state->minDisparity = -39;
+\end{theorem}
+\begin{theorem}
+sbm.state->preFilterCap = 61;
+\end{theorem}
+\begin{theorem}
+sbm.state->uniquenessRatio = 0;
+\end{theorem}
+
+Estos primeros 8 parámetros indican lo mismo que en SGBM.
+
+\begin{theorem}
+sbm.state->preFilterSize = 5;
+\end{theorem}
+
+Se indica el tamaño de la ventana del filtro previo que se aplica.
+
+\begin{theorem}
+sbm.state->textureThreshold = 507;
+\end{theorem}
+
+Se calcula la disparidad en donde la textura supera la cota indicada.
+
+\newpage
+
+\section{Anexo III: Resultados del Experimento 2}
 
 \end{document}
