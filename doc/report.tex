@@ -693,15 +693,72 @@ A continuación se muestra el histograma de todos los errores, y una tabla con l
 
 \paragraph{Errores por método}
 \hfill \break
-Es interesante ver los errores diferenciados por método de obtención de disparidades:
+Es interesante ver los errores diferenciados por método de obtención de disparidades en conjunto con su histograma en la \Figure{12}
 
-\begin{tabular}{ |c|c|c|c| }
-  \hline
-  & \multicolumn{3}{|c|}{Team sheet} \\
-  \hline
-  test & test & test & test \\
-  \hline
-\end{tabular}
+%% Dario Tabla 1
+
+\begin{figure}[h!]
+
+  \centering
+    \includegraphics[width=1\textwidth]{f12.png}
+  \caption{Histograma de los errores distinguidos por método.}
+\end{figure}
+
+\paragraph{Errores por objeto}
+\hfill \break
+
+Otro de los datos obtenidos en el Experimento 2 son los errores distinguidos por el objeto observado los cuales se presentan junto a sus histogramas en la \Figure{13}
+
+%% Dario Tabla 2
+
+\begin{figure}[h!]
+
+  \centering
+    \includegraphics[width=1\textwidth]{f13.png}
+  \caption{Histograma de los errores distinguidos por objeto.}
+\end{figure}
+
+\paragraph{Errores por distancia}
+\hfill \break
+
+Una última característica observable en cuanto a los errores que respectan a la precisión son los errores distinguidos por la distancia a medir. Este indicador también se presenta junto a sus histogramas en la \Figure{14}
+
+%% Dario Tabla 3
+
+\begin{figure}[h!]
+
+  \centering
+    \includegraphics[width=1\textwidth]{f14.png}
+  \caption{Histograma de los errores distinguidos por distancia a medir.}
+\end{figure}
+
+\paragraph{Tiempos por método}
+\hfill \break
+
+A la hora de medir los recursos, se presentan los tiempos de procesamiento de cada uno de los algoritmos. En la \Figure{15} se pueden ver sus histogramas.
+
+%% Dario Tabla 4
+
+\begin{figure}[h!]
+
+  \centering
+    \includegraphics[width=1\textwidth]{f15.png}
+  \caption{Histograma de los tiempos de procesamiento distinguidos por método.}
+\end{figure}
+
+\paragraph{Densidad por método}
+\hfill \break
+
+El último indicador del experimento 2 muestra la densidad obtenida para cada uno de los métodos. Para este indicador también se adjuntan sus histogramas en la \Figure{16}
+
+%% Dario Tabla 5
+
+\begin{figure}[h!]
+
+  \centering
+    \includegraphics[width=1\textwidth]{f16.png}
+  \caption{Histograma de las densidades obtenidas distinguidas por método.}
+\end{figure}
 
 \newpage
 
@@ -718,7 +775,7 @@ Haciendo un análisis más profundo de estos errores podemos ver que los errores
 Si en vez de enfocarnos en los métodos nos enfocamos en los objetos medidos se puede ver que objetos pequeños y con esquinas definidas como el caso del porta tarjetas traen los mejores resultados. De forma opuesta, la pelota es el caso que más casos espurios y errores presenta. De manera general se ve que independientemente del objeto, las curvas que representan a los errores tienen la forma de una distribución normal independientemente del método.
 Como último dato al medir los errores de precisión aparece un pequeño análisis en cuanto a las distancias a medir. Si bien todas las curvas vuelven a tomar la forma de una distribución normal, al aumentar la distancia a medir aparecen más casos espurios aumentando el desvío estándar. De la misma manera, los errores comienzan a ser un poco más significativos.
 
-La medición de los tiempos de procesamiento de los algoritmos muestran que todos comparten los órdenes de magnitud de esta métrica. Sin embargo, en un análisis más profundo se puede ver que BM no solo tiene tiempos un poco más rápidos, sino que al analizar la curva que se forma se puede notar un detalle interesante. Mientras que SGBM y ELAS parecerían tomar la forma de una distribución normal, BM toma la forma de una distribución de cola larga, indicando una predicción notable para este último algoritmo.
+La medición de los tiempos de procesamiento de los algoritmos muestran que todos comparten los órdenes de magnitud de este indicador. Sin embargo, en un análisis más profundo se puede ver que BM no solo tiene tiempos un poco más rápidos, sino que al analizar la curva que se forma se puede notar un detalle interesante. Mientras que SGBM y ELAS parecerían tomar la forma de una distribución normal, BM toma la forma de una distribución de cola larga, indicando una predicción notable para este último algoritmo.
 
 Por último, es importante hablar sobre las densidades que presenta cada uno de los algoritmos. Como es esperado, BM cuenta con una densidad notoriamente menor a los otros algoritmos. Esto es inherente al algoritmo ya que BM únicamente indica los bordes de los objetos encontrados. Si bien la diferencia entre SGBM y ELAS es menor, se puede ver que SGBM no solo posee una mayor densidad sino que también que su desvío estándar es menor que el de ELAS.
 
@@ -951,5 +1008,9 @@ Se calcula la disparidad en donde la textura supera la cota indicada.
 \newpage
 
 \section{Anexo III: Resultados del Experimento 2}
+
+A continuación se detalla la tabla con los resultados del Experimento 2.
+
+%% Dario Tabla 6
 
 \end{document}
