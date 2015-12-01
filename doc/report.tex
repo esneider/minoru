@@ -617,21 +617,21 @@ Las figuras 8, 9 y 10 muestran las imágenes tomadas en este experimento para ca
 
   \centering
     \includegraphics[width=1\textwidth]{f8.png}
-  \caption{Mapas de disparidad obtenidos con BM. La imagen izquierda muestra el objeto a 0,5 m, y la imagen derecha muestra el objeto a 1,83 m.}
+  \caption{Imágenes originales y mapas de disparidad obtenidos con BM. Las imagenes izquierdas muestran el objeto a 0,5 m, y las imagenes derechas muestran el objeto a 1,83 m.}
 \end{figure}
 
 \begin{figure}[h!]
 
   \centering
     \includegraphics[width=1\textwidth]{f9.png}
-  \caption{Mapas de disparidad obtenidos con SGBM. La imagen izquierda muestra el objeto a 0,5 m. La imagen derecha muestra el objeto a 1,72 m.}
+  \caption{Imágenes originales y mapas de disparidad obtenidos con SGBM. Las imagenes izquierdas muestran el objeto a 0,5 m, y las imagenes derechas muestran el objeto a 1,72 m.}
 \end{figure}
 
 \begin{figure}[h!]
 
   \centering
     \includegraphics[width=1\textwidth]{f10.png}
-  \caption{Mapas de disparidad obtenidos con ELAS. La imagen izquierda muestra el objeto a 0,5 m. La imagen derecha muestra el objeto a 1,83 m.}
+  \caption{Imágenes originales y mapas de disparidad obtenidos con ELAS. Las imagenes izquierdas muestran el objeto a 0,5 m, y las imagenes derechas muestran el objeto a 1,83 m.}
 \end{figure}
 
 \subsubsection{Experimento 2}
@@ -778,6 +778,11 @@ Como último dato al medir los errores de precisión aparece un pequeño anális
 La medición de los tiempos de procesamiento de los algoritmos muestran que todos comparten los órdenes de magnitud de este indicador. Sin embargo, en un análisis más profundo se puede ver que BM no solo tiene tiempos un poco más rápidos, sino que al analizar la curva que se forma se puede notar un detalle interesante. Mientras que SGBM y ELAS parecerían tomar la forma de una distribución normal, BM toma la forma de una distribución de cola larga, indicando una predicción notable para este último algoritmo.
 
 Por último, es importante hablar sobre las densidades que presenta cada uno de los algoritmos. Como es esperado, BM cuenta con una densidad notoriamente menor a los otros algoritmos. Esto es inherente al algoritmo ya que BM únicamente indica los bordes de los objetos encontrados. Si bien la diferencia entre SGBM y ELAS es menor, se puede ver que SGBM no solo posee una mayor densidad sino que también que su desvío estándar es menor que el de ELAS.
+
+Como conclusiones finales, se puede ver que si bien es dependiente de la escena a analizar, las cámaras estéreo son un recurso accesible en el mércado que permite obtener resultados precisos en tiempo real. La aparición de cámaras portatiles en la actualidad es un indicio de que en caso de ser deseado, es posible extraer información de la profundidad de una escena de forma sencilla con diversas aplicaciones.
+Aún más, al ser un procesamiento de imágenes, las cámaras estéreo no traen problemas de interferencia como si lo tendrían sensores de ultrasonido.
+
+Si bien creemos que los resultados pueden ser mejorados mediante cámaras de mayor calidad, consideramos que la obtención de profundidades a través de cámaras estereo es un interesante recurso dado su accesibilidad.
 
 \newpage
 
