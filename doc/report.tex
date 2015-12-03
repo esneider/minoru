@@ -89,7 +89,7 @@ En el segundo capítulo se hará una explicación detallada del marco teórico n
 
 \subsection{Geometría proyectiva}
 
-La geometría euclidiana con la que estamos familiarizados describe muy bien nuestro mundo tridimensional: los lados de objetos tienen longitudes, las líneas que se intersectan forman ángulos entre sí, y dos líneas se dicen paralelas si están en el mismo plano y nunca se cruzan. Más aún, estas propiedades no cambian al aplicar transformaciones como traslación y rotación.
+La geometría euclidiana con la que estamos familiarizados describe muy bien nuestro mundo tridimensional: los lados de objetos tienen longitudes, las líneas que se intersectan forman ángulos entre sí, y dos líneas se dicen paralelas si están en el mismo plano y nunca se cruzan. Más aún, estas propiedades no cambian al aplicar transformaciones euclidianas (transformación y rotación).
 
 Sin embargo, al considerar el proceso de captura de una imagen en una cámara, este modelo ya no es suficiente: las longitudes y ángulos no se preservan, y las líneas paralelas pueden llegar a cortarse. La geometría proyectiva, que es una generalización de la euclidiana, provee un marco mucho más versátil para expresar la geometría de una cámara, permitiendo una cantidad de transformaciones mucho más amplia.\footnote{En \Cite{CM03} se hace un desarrollo completo de esta geometría y sus propiedades.}
 
@@ -100,7 +100,7 @@ Las coordenadas utilizadas en geometría proyectiva son llamadas coordenadas hom
 	\item Los vectores son representados con:
 	\begin{itemize}
 		\item letras minúsculas en negrita (ej. \Two{m}) si pertenecen a un espacio de 2 dimensiones (de ahora en más, 2D).
-		\item letras mayúsculas en negrita (ej. \Three{M}) si pertenecen a un espacio de 3 dimensiones (de ahora en más, 3D) o mayor.
+		\item letras mayúsculas en negrita (ej. \Three{M}) si pertenecen a un espacio de 3 dimensiones (de ahora en más, 3D).
 	\end{itemize}
 	\item Las matrices son representadas con letras mayúsculas en negrita, con un sombrero (ej. \Mat{A}).
 \end{itemize}
@@ -110,7 +110,7 @@ Las coordenadas utilizadas en geometría proyectiva son llamadas coordenadas hom
 Sea $\ThreeCart{M} = \Vector{\Scalar{x}, \Scalar{y}, \Scalar{z}}$ un punto en el espacio 3D expresado en coordenadas cartesianas, en el espacio proyectivo es representado como $\Three{M} = \Vector{\Scalar{x}, \Scalar{y}, \Scalar{z}, 1}$. En general, el punto $\Three{M} = \Vector{\Scalar{x}, \Scalar{y}, \Scalar{z}, \Scalar{t}}$ corresponde al punto $\ThreeCart{M} = \Vector{\Scalar{x}/\Scalar{t}, \Scalar{y}/\Scalar{t}, \Scalar{z}/\Scalar{t}}$. De la misma manera, \TwoCart{m} es representado como \Two{m}.
 
 \subsubsection{Recta}
-
+ 
 Una recta en el espacio 2D puede ser representada por un vector en el espacio 3D: el punto \TwoCart{m} pertenece a la recta \Two{l} (donde $\Two{l} = \Vector{\Scalar{a}, \Scalar{b}, \Scalar{c}}$) si y sólo si $\Two{l} \cdot \Two{m} = 0$. En el plano proyectivo la representación de una recta es igual a la representación de un punto (principio de dualidad).
 
 \subsubsection{Plano}
