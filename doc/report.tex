@@ -638,6 +638,10 @@ Las figuras 8, 9 y 10 muestran las imágenes tomadas en este experimento para ca
 
 En el anexo III se presenta una tabla con todas las mediciones de este experimento. Dada la gran cantidad de datos, aquí sólo se presenta una serie de gráficos y tablas para ayudar a interpretar estos datos.
 
+En primer lugar se presenta y explica el cálculo de un factor que permite transformar los valores obtenidos por cada algoritmo a las mediciones de distancia (en cm).
+
+Luego se presentan los valores obtenidos para los indicadores de precisión, recursos y densidad como fueron definidos previamente. En todos los casos se exponen la media, la desviación estándar y el percentil 95º de la muestra obtenida. En todos los indicadores se comparan los métodos de obtención del mapa de disparidad aunque en el caso de la precisión además se evaluan las distancias y los objetos utilizados.
+
 \paragraph{Factor de escala}
 \hfill \break
 La distancia medida por cada método se calcula mediante la formula:
@@ -768,14 +772,14 @@ Este último capítulo tiene como objetivo discutir las conclusiones obtenidas, 
 
 En primer lugar, a diferencia de lo que se creía originalmente, durante la etapa de experimentación se encontró que el rango no sólo depende de la cámara, sino que también depende del método. Si bien todos los métodos proveen resultados precisos para distancias cortas (0,5 m), a distancias más grandes empiezan a aparecer algunas diferencias. Puntualmente, SGBM tiene un rango menor a los otros dos métodos.
 
-En cuanto a la precisión de la cámara, de forma general se puede decir que los errores obtenidos tienen una distribución similar a una normal. Los errores obtenidos tienen una media, un desvío estándar y un percentil que indican una alta precisión dentro del rango estudiado (con un error menor a 2 cm).
+En cuanto a la precisión de la cámara, los errores obtenidos tienen una media, un desvío estándar y un percentil que indican una alta precisión dentro del rango estudiado (con un error menor a 2 cm).
 
 Al evaluar los errores encontrados en la precisión distinguidos por método se puede ver que ELAS es ligeramente superior al resto de los métodos. Si bien BM y SGBM comparten los órdenes de magnitud de estos errores, las muestras concretas indican una leve mejoría al obtener el mapa de disparidad utilizando BM.
-Haciendo un análisis más profundo de estos errores podemos ver que los errores en ELAS tienen una forma similar a una distribución uniforme mientras que los errores en BM y SGBM parecerían seguir a una distribución normal centradas en 0. Tanto BM como SGBM presentan una tendencia a introducir casos espurios.
-Si en vez de enfocarnos en los métodos nos enfocamos en los objetos medidos se puede ver que objetos pequeños y con esquinas definidas como el caso del porta tarjetas traen los mejores resultados. De forma opuesta, la pelota es el caso que más casos espurios y errores presenta. De manera general se ve que independientemente del objeto, las curvas que representan a los errores tienen la forma de una distribución normal independientemente del método.
-Como último dato al medir los errores de precisión aparece un pequeño análisis en cuanto a las distancias a medir. Si bien todas las curvas vuelven a tomar la forma de una distribución normal, al aumentar la distancia a medir aparecen más casos espurios aumentando el desvío estándar. De la misma manera, los errores comienzan a ser un poco más significativos.
+Haciendo un análisis más profundo de estos errores podemos ver que los errores tanto en BM como en SGBM si bien se encuentran centradas en el 0 también presentan una tendencia a introducir casos espurios.
+Si en vez de enfocarnos en los métodos nos enfocamos en los objetos medidos se puede ver que objetos pequeños y con esquinas definidas como el caso del porta tarjetas traen los mejores resultados. De forma opuesta, la pelota es el caso que más casos espurios y errores presenta. 
+Como último dato al medir los errores de precisión aparece un pequeño análisis en cuanto a las distancias a medir. Al aumentar la distancia a medir aparecen más casos espurios aumentando el desvío estándar. De la misma manera, los errores comienzan a ser un poco más significativos.
 
-La medición de los tiempos de procesamiento de los algoritmos muestran que todos comparten los órdenes de magnitud de este indicador. Sin embargo, en un análisis más profundo se puede ver que BM no solo tiene tiempos un poco más rápidos, sino que al analizar la curva que se forma se puede notar un detalle interesante. Mientras que SGBM y ELAS parecerían tomar la forma de una distribución normal, BM toma la forma de una distribución de cola larga, indicando una predicción notable para este último algoritmo.
+La medición de los tiempos de procesamiento de los algoritmos muestran que todos comparten los órdenes de magnitud de este indicador. Sin embargo, en un análisis más profundo se puede ver que BM no solo tiene tiempos un poco más rápidos, sino que al analizar la curva que se forma se puede notar un detalle interesante. Mientras que SGBM y ELAS parecerían ser relativamente consistentes con sus tiempos, observamos que BM parece presentar una cola larga, indicando una predicción para este último algoritmo.
 
 Por último, es importante hablar sobre las densidades que presenta cada uno de los algoritmos. Como es esperado, BM cuenta con una densidad notoriamente menor a los otros algoritmos. Esto es inherente al algoritmo ya que BM únicamente indica los bordes de los objetos encontrados. Si bien la diferencia entre SGBM y ELAS es menor, se puede ver que SGBM no solo posee una mayor densidad sino que también que su desvío estándar es menor que el de ELAS.
 
