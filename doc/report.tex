@@ -409,10 +409,10 @@ Dado el valor de disparidad de un punto, se puede calcular su profundidad, o dis
 En el diagrama anterior, queremos calcular la profundidad (\Scalar{z}) a partir de la disparidad, es decir, la distancia entre los puntos en el plano de la imagen, correspondiendo al punto 3D \Three{M} de la escena:
 
 \[
-    disparidad = B - \left| \Two{m_1} - \Two{m_2} \right|
+    \frac{disparidad}{unidad} = B - \left| \Two{m_1} - \Two{m_2} \right|
 \]
 
-donde \Scalar{B} es la apertura horizontal de la cámara estéreo (distancia entre los centros de las dos cámaras).
+donde \Scalar{B} es la apertura horizontal de la cámara estéreo (distancia entre los centros de las dos cámaras), y la unidad es un factor de escala dependiente del método.
 
 Dado que los triángulos $\Three{M}\Two{m_1}\Two{m_2}$ y $\Three{M}\Three{C_1}\Three{C_2}$ son semejantes, podemos plantear:
 
@@ -420,8 +420,8 @@ Dado que los triángulos $\Three{M}\Two{m_1}\Two{m_2}$ y $\Three{M}\Three{C_1}\T
     \frac{\left| \Two{m_1} - \Two{m_2} \right|}{B} & = \frac{z - f}{z} \\
     \left| \Two{m_1} - \Two{m_2} \right| & = B - \frac{Bf}{z} \\
     B - \left| \Two{m_1} - \Two{m_2} \right| & = \frac{Bf}{z} \\
-    disparidad & = \frac{Bf}{z} \\
-    z & = \frac{Bf}{disparidad}
+    \frac{disparidad}{unidad} & = \frac{Bf}{z} \\
+    z & = \frac{Bf \times unidad}{disparidad}
 \end{align*}
 
 donde $f$ es la distancia focal de las cámaras.
