@@ -403,7 +403,7 @@ Dado el valor de disparidad de un punto, se puede calcular su profundidad, o dis
 \begin{figure}[h!]
   \centering
     \includegraphics[width=0.7\textwidth]{f7.png} %% CHANGE FIGURE
-  \caption{Ilustración del proceso de triangulación.}
+  \caption{Diagrama de un sistema de estéreo}
 \end{figure}
 
 En el diagrama anterior, queremos calcular la profundidad (\Scalar{z}) a partir la disparidad, es decir, la distancia entre los puntos en el plano de la imagen, correspondiendo al punto 3D \Three{X} de la escena:
@@ -807,7 +807,7 @@ En cuanto a la precisión de la cámara, los errores obtenidos tienen una media,
 
 Al evaluar los errores encontrados en la precisión distinguidos por método se puede ver que ELAS es ligeramente superior al resto de los métodos. Si bien BM y SGBM comparten los órdenes de magnitud de estos errores, las muestras concretas indican una leve mejoría al obtener el mapa de disparidad utilizando BM.
 Haciendo un análisis más profundo de estos errores podemos ver que los errores tanto en BM como en SGBM si bien se encuentran centradas en el 0 también presentan una tendencia a introducir casos espurios.
-Si en vez de enfocarnos en los métodos nos enfocamos en los objetos medidos se puede ver que objetos pequeños y con esquinas definidas como el caso del porta tarjetas traen los mejores resultados. De forma opuesta, la pelota es el caso que más casos espurios y errores presenta. 
+Si en vez de enfocarnos en los métodos nos enfocamos en los objetos medidos se puede ver que objetos pequeños y con esquinas definidas como el caso del porta tarjetas traen los mejores resultados. De forma opuesta, la pelota es el caso que más casos espurios y errores presenta.
 Como último dato al medir los errores de precisión aparece un pequeño análisis en cuanto a las distancias a medir. Al aumentar la distancia a medir aparecen más casos espurios aumentando el desvío estándar. De la misma manera, los errores comienzan a ser un poco más significativos.
 
 La medición de los tiempos de procesamiento de los algoritmos muestran que todos comparten los órdenes de magnitud de este indicador. Sin embargo, en un análisis más profundo se puede ver que BM no solo tiene tiempos un poco más rápidos, sino que al analizar la curva que se forma se puede notar un detalle interesante. Mientras que SGBM y ELAS parecerían ser relativamente consistentes con sus tiempos, observamos que BM parece presentar una cola larga, indicando una predicción para este último algoritmo.
