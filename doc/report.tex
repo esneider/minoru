@@ -669,26 +669,29 @@ Las figuras 9, 10 y 11 muestran las imágenes tomadas en este experimento para c
 
 En el anexo III se presenta una tabla con todas las mediciones de este experimento. Dada la gran cantidad de datos, aquí sólo se presenta una serie de gráficos y tablas para ayudar a interpretar estos datos.
 
-En primer lugar se presenta y explica el cálculo de un factor que permite transformar los valores obtenidos por cada algoritmo a las mediciones de distancia (en cm).
+En primer lugar se presenta y explica el cálculo del factor ya explicado previamente que permite transformar los valores obtenidos por cada algoritmo a las mediciones de distancia (en cm).
 
 Luego se presentan los valores obtenidos para los indicadores de precisión, recursos y densidad como fueron definidos previamente. En todos los casos se exponen la media, la desviación estándar y el percentil 95º de la muestra obtenida. En todos los indicadores se comparan los métodos de obtención del mapa de disparidad aunque en el caso de la precisión además se evaluan las distancias y los objetos utilizados.
 
-\paragraph{Factor de escala}
+\paragraph{Cálculo del factor}
 \hfill \break
-La distancia medida por cada método se calcula mediante la formula:
+
+Dado que cada método tiene un factor desconocido como se describe en la sección 3.6, el mismo se presenta de manera agrupada en la siguiente fórmula que permite obtener la distancia medida.
 
 \[
 	distancia = \frac{ factor_{m\acute{e}todo} }{ medici\acute{o}n }
 \]
 
-Dado que cada método tiene un factor desconocido de escala, se calculó la escala media y su error porcentual, mediante las siguientes fórmulas:
+Luego,
 
 \[
 	factor_{m\acute{e}todo} = \frac{1}{\#capturas} \sum_{captura} {distancia \times medici\acute{o}n}
 \]
 
+El error porcentual de cada uno de los factores puede calcularse de la siguiente manera:
+
 \[
-	{\%\ error}_{m\acute{e}todo} = \frac{100 \  std_{captura}(distancia \times medici\acute{o}n)}{factor_{m\acute{e}todo}}
+	{\%\ error}_{factor_{m\acute{e}todo}} = \frac{100 \  std_{captura}(distancia \times medici\acute{o}n)}{factor_{m\acute{e}todo}}
 \]
 
 Y los valores obtenidos son:
