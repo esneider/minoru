@@ -402,24 +402,24 @@ Dado el valor de disparidad de un punto, se puede calcular su profundidad, o dis
 
 \begin{figure}[h!]
   \centering
-    \includegraphics[width=0.7\textwidth]{fnew.png} %% CHANGE FIGURE
+    \includegraphics[width=0.7\textwidth]{fnew.png}
   \caption{Diagrama de un sistema de estéreo}
 \end{figure}
 
-En el diagrama anterior, queremos calcular la profundidad (\Scalar{z}) a partir de la disparidad, es decir, la distancia entre los puntos en el plano de la imagen, correspondiendo al punto 3D \ThreeCart{M} de la escena:
+En el diagrama anterior, queremos calcular la profundidad (\Scalar{z}) a partir de la disparidad, es decir, la distancia entre los puntos en el plano de la imagen, correspondiendo al punto 3D \Three{M} de la escena:
 
 \[
-    disparidad = B - (\ThreeCart{m_1} - \ThreeCart{m_2})
+    disparidad = B - \left| \Two{m_1} - \Two{m_2} \right|
 \]
 
 donde \Scalar{B} es la apertura horizontal de la cámara estéreo (distancia entre los centros de las dos cámaras).
 
-Dado que los triángulos $\ThreeCart{M}\ThreeCart{m_1}\ThreeCart{m_2}$ y $\ThreeCart{M}\ThreeCart{C_1}\ThreeCart{C_2}$ son semejantes, podemos plantear:
+Dado que los triángulos $\Three{M}\Two{m_1}\Two{m_2}$ y $\Three{M}\Three{C_1}\Three{C_2}$ son semejantes, podemos plantear:
 
 \begin{align*}
-    \frac{\ThreeCart{m_1} - \ThreeCart{m_2}}{B} & = \frac{z - f}{z} \\
-    \ThreeCart{m_1} - \ThreeCart{m_2} & = B - \frac{Bf}{z} \\
-    B - (\ThreeCart{m_1} - \ThreeCart{m_2}) & = \frac{Bf}{z} \\
+    \frac{\left| \Two{m_1} - \Two{m_2} \right|}{B} & = \frac{z - f}{z} \\
+    \left| \Two{m_1} - \Two{m_2} \right| & = B - \frac{Bf}{z} \\
+    B - \left| \Two{m_1} - \Two{m_2} \right| & = \frac{Bf}{z} \\
     disparidad & = \frac{Bf}{z} \\
     z & = \frac{Bf}{disparidad}
 \end{align*}
