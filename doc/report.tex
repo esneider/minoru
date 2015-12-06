@@ -12,6 +12,7 @@
 \usepackage{microtype}
 \usepackage{listings}
 \usepackage{xcolor}
+
 \newsavebox\thmbox
 \newtheorem{mytheorem}{}
 \newenvironment{theorem}%
@@ -79,7 +80,7 @@ Los esfuerzos en resolver este problema presentan en la actualidad un conjunto e
 
 Este trabajo presenta un análisis y comparación de tres algoritmos evaluando precisión, tiempo, densidad y rango de los mismos en una cámara Minoru la cual es económica y de fácil obtención en el mercado. Además se expone un estudio sobre el uso de cámaras de este estilo y sus posibles aplicaciones.
 
-Los algoritmos estudiados son \textit{Block Matching} (BM) \Cite{K98}, \textit{Semi Global Block Matching} (SGBM) \Cite{H05} \Cite{EH08} y \textit{Efficient Large-scale Stereo} (ELAS) \Cite{GRU11}. Para la implementación de los primeros dos algoritmos se utilizó la librería OpenCV, mientras que para ELAS se utilizó LibELAS, librería producida por los autores del algoritmo original. Todos los algoritmos traen como resultado un mapa de disparidad. Un mapa de disparidad refiere a la distancia aparente de píxeles entre un par de imágenes estéreo. Para experimentar esta distancia obtenida, uno puede cerrar cada uno de los ojos de forma desfasada. Al hacer esto, los objetos más cercanos parecen moverse una distancia más significativa que los objetos más alejados. Como resultado, un mapa de disparidad permite visualizar en base a intensidades de grises o gamas de colores la profundidad de la escena. 
+Los algoritmos estudiados son \textit{Block Matching} (BM) \Cite{K98}, \textit{Semi Global Block Matching} (SGBM) \Cite{H05} \Cite{EH08} y \textit{Efficient Large-scale Stereo} (ELAS) \Cite{GRU11}. Para la implementación de los primeros dos algoritmos se utilizó la librería OpenCV, mientras que para ELAS se utilizó LibELAS, librería producida por los autores del algoritmo original. Todos los algoritmos traen como resultado un mapa de disparidad. Un mapa de disparidad refiere a la distancia aparente de píxeles entre un par de imágenes estéreo. Para experimentar esta distancia obtenida, uno puede cerrar cada uno de los ojos de forma desfasada. Al hacer esto, los objetos más cercanos parecen moverse una distancia más significativa que los objetos más alejados. Como resultado, un mapa de disparidad permite visualizar en base a intensidades de grises o gamas de colores la profundidad de la escena.
 
 En el segundo capítulo se hará una explicación detallada del marco teórico necesario para poder comprender el funcionamiento de dichos algoritmos, presentando así una introducción a la geometría proyectiva para luego explicar el modelo de una cámara. Luego, en este capítulo se explican nociones sobre la visión estéreo incluyendo conceptos como calibración, rectificación y geometría epipolar. Para darle un cierre al marco teórico se profundiza sobre el concepto de mapa de disparidad. En el tercer capítulo se realizará una explicación detallada sobre cada uno de los algoritmos evaluados, explicando la forma en la que cada uno de estos obtiene un mapa de disparidad. En el cuarto capítulo se expone la experimentación realizada, presentando una comparación entre los distintos algoritmos. Finalmente, en el quinto capítulo se presentan las conclusiones del trabajo, evaluando tanto las comparaciones entre los algoritmos como la viabilidad de su uso en sistemas de bajos recursos. En este capítulo también se proponen aplicaciones y trabajos futuros.
 
@@ -110,7 +111,7 @@ Las coordenadas utilizadas en geometría proyectiva son llamadas coordenadas hom
 Sea $\ThreeCart{M} = \Vector{\Scalar{x}, \Scalar{y}, \Scalar{z}}$ un punto en el espacio 3D expresado en coordenadas cartesianas, en el espacio proyectivo es representado como $\Three{M} = \Vector{\Scalar{x}, \Scalar{y}, \Scalar{z}, 1}$. En general, el punto $\Three{M} = \Vector{\Scalar{x}, \Scalar{y}, \Scalar{z}, \Scalar{t}}$ corresponde al punto $\ThreeCart{M} = \Vector{\Scalar{x}/\Scalar{t}, \Scalar{y}/\Scalar{t}, \Scalar{z}/\Scalar{t}}$. De la misma manera, \TwoCart{m} es representado como \Two{m}.
 
 \subsubsection{Recta}
- 
+
 Una recta en el espacio 2D puede ser representada por un vector en el espacio 3D: el punto \TwoCart{m} pertenece a la recta \Two{l} (donde $\Two{l} = \Vector{\Scalar{a}, \Scalar{b}, \Scalar{c}}$) si y sólo si $\Two{l} \cdot \Two{m} = 0$. En el plano proyectivo la representación de una recta es igual a la representación de un punto (principio de dualidad).
 
 \subsubsection{Plano}
@@ -144,8 +145,8 @@ Como el origen del sistema de coordenadas del mundo coincide con el centro ópti
 \[
 	\Mat{P} = \Mat{P_c} =
 	\begin{bmatrix}
-		1 & 0 & 0 & 0 \\ 
-		0 & 1 & 0 & 0 \\ 
+		1 & 0 & 0 & 0 \\
+		0 & 1 & 0 & 0 \\
 		0 & 0 & 1 & 0
 	\end{bmatrix}
 \]
@@ -175,8 +176,8 @@ donde
 	\[
 		\Mat{A} =
 		\begin{bmatrix}
-			\Scalar{f} \Scalar{k_u} & 0 & \Scalar{u_0} \\ 
-			0 & \Scalar{f} \Scalar{k_v} & \Scalar{v_0} \\ 
+			\Scalar{f} \Scalar{k_u} & 0 & \Scalar{u_0} \\
+			0 & \Scalar{f} \Scalar{k_v} & \Scalar{v_0} \\
 			0 & 0 & 1
 		\end{bmatrix}
 	\]
@@ -190,7 +191,7 @@ donde
 	\[
 		\Mat{D} =
 		\begin{bmatrix}
-			\Mat{R} & \ThreeCart{T} \\ 
+			\Mat{R} & \ThreeCart{T} \\
 			\mathbf{0}^T_3 & 1
 		\end{bmatrix}
 	\]
@@ -395,6 +396,36 @@ Para generar este mapa se hace una correspondencia entre los pixels de las dos i
 
 El mapa de disparidad generado será utilizado para reconstruir la escena. A continuación se presentan varios algoritmos para realizar la correspondencia entre pixels.
 
+\subsection{Cálculo de profundidad}
+
+Dado el valor de disparidad de un punto, se puede calcular su profundidad, o distancia al centro de la cámara.
+
+\begin{figure}[h!]
+  \centering
+    \includegraphics[width=0.7\textwidth]{f7.png} %% CHANGE FIGURE
+  \caption{Ilustración del proceso de triangulación.}
+\end{figure}
+
+En el diagrama anterior, queremos calcular la profundidad (\Scalar{z}) a partir la disparidad, es decir, la distancia entre los puntos en el plano de la imagen, correspondiendo al punto 3D \Three{X} de la escena:
+
+\[
+    disparidad = B - (x - x')
+\]
+
+donde \Scalar{B} es la apertura horizontal de la cámara estéreo (distancia entre los centros de las dos cámaras).
+
+Dado que los triángulos $Xxx'$ y $XOO'$ son semejantes, podemos plantear:
+
+\begin{align*}
+    \frac{x - x'}{B} & = \frac{z - f}{z} \\
+    x - x' & = B - \frac{Bf}{z} \\
+    B - (x - x') & = \frac{Bf}{z} \\
+    disparidad & = \frac{Bf}{z} \\
+    z & = \frac{Bf}{disparidad}
+\end{align*}
+
+donde $f$ es la distancia focal de las cámaras.
+
 \newpage
 
 \section{Métodos de obtención de correspondencias}
@@ -454,7 +485,7 @@ Esta función tiene en cuenta las intensidades de otros puntos en el área, para
 
 La suma de los costos implica conectar los costos de correspondencia dentro de un vecindario de píxeles cercanos. Se suele sumar dentro de una ventana fija a disparidad constante. SGBM define el costo teniendo en cuenta el contexto de un pixel como:
 \begin{align*}
-	L_\Delta(x, y, d) = F(x, y, d) + \mathrm{min} & [ \\ 
+	L_\Delta(x, y, d) = F(x, y, d) + \mathrm{min} & [ \\
 	                                                              &\ L_\Delta(x - \Delta_x, y - \Delta_y, d), \\
 	                                                              &\ L_\Delta(x - \Delta_x, y - \Delta_y, d - 1) + P_1,\\
 	                                                              &\ L_\Delta(x - \Delta_x, y - \Delta_y, d + 1) + P_1,\\
@@ -600,13 +631,13 @@ Del mismo modo, al medir la densidad se acotó la escena observable a aquellos s
 Los resultados obtenidos para el rango se presentan en la siguiente tabla:
 
 \begin{tabular}{ | l | c | c | c | }
-	\hline  
+	\hline
 	& BM & SGBM & ELAS \\
-	\hline  
+	\hline
 	Rango mínimo & Menor a 0,5 m & Menor a 0,5 m & Menor a 0,5 m \\
-	\hline  
+	\hline
 	Rango máximo & 1,83 m & 1,72 m & 1,83 m \\
-	\hline  
+	\hline
 \end{tabular}
 
 Si bien no se ha podido determinar la distancia mínima, los 3 métodos pueden realizar el cálculo de distancia de manera consistente a una distancia de 0,5 m, e incluso a distancias menores. En cuanto a la distancia máxima, la tabla ilustra en qué distancias se empiezan a notar inconsistencias para cada uno de los métodos, dejando en evidencia un rango un poco menor para SGBM.
@@ -663,13 +694,13 @@ Dado que cada método tiene un factor desconocido de escala, se calculó la esca
 Y los valores obtenidos son:
 
 \begin{tabular}{ | l | c | c | c | }
-	\hline  
+	\hline
 	& BM & SGBM & ELAS \\
-	\hline  
+	\hline
 	factor & 25,965 & 418,429 & 414,265 \\
-	\hline  
+	\hline
 	\% error & 1,031\% & 1,507\% & 1,520\% \\
-	\hline  
+	\hline
 \end{tabular}
 
 \paragraph{Errores}
@@ -677,15 +708,15 @@ Y los valores obtenidos son:
 A continuación se muestra el histograma de todos los errores, y una tabla con la media, desviación estándar y percentil 95º de la muestra. A su vez, la \Figure{11} ilustra un histograma de todos los errores.
 
 \begin{tabular}{ | c | c | }
-	\hline  
+	\hline
 	& Error \\
-	\hline  
+	\hline
 	Media & 0,002 m \\
-	\hline  
+	\hline
 	Desviación estándar & 0,014 m \\
 	\hline
 	Percentil 95º & 0,028 m \\
-	\hline    
+	\hline
 \end{tabular}
 
 \begin{figure}[h!]
@@ -865,7 +896,7 @@ libv4l2: error turning on stream: No space left on device VIDIOC\_STREAMON: No s
 Esto sucede ya que las cámaras intentan utilizar todo el ancho de banda disponible en el controlador USB, superando el ancho de banda disponible. Se puede resolver a través de los siguientes comandos.
 
 \begin{theorem}
-sudo rmmod uvcvideo 
+sudo rmmod uvcvideo
 \end{theorem}
 
 \begin{theorem}
