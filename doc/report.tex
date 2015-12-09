@@ -47,7 +47,7 @@
 \title{Estudio comparativo sobre visión estéreo en tiempo real para cámaras de recursos limitados}
 \author{Darío Sneidermanis \\ Darío Susnisky}
 \predate{\center}
-\date{Noviembre 2015}
+\date{Diciembre 2015}
 \postdate{\vfill
 	\center{Proyecto final tutelado por Juan Miguel Santos}
 	\center{Departamento de Ingeniería Informática}
@@ -79,11 +79,11 @@ Dada la importancia y diversidad del uso de esta información, durante los últi
 
 Los esfuerzos en resolver este problema presentan en la actualidad un conjunto extenso de algoritmos disponibles para solucionar esta cuestión, exponiendo distintos balances entre precisión y velocidad. Si bien existen diversos trabajos que comparan estos algoritmos de forma extensa, pocas fuentes informan sobre la viabilidad de dichos algoritmos en sistemas de bajos recursos.
 
-Este trabajo presenta un análisis y comparación de tres algoritmos evaluando precisión, tiempo, densidad y rango de los mismos en una cámara Minoru la cual es económica y de fácil obtención en el mercado. Además se expone un estudio sobre el uso de cámaras de este estilo y sus posibles aplicaciones.
+Este trabajo presenta un análisis y comparación de tres algoritmos evaluando precisión, tiempo, densidad y rango de los mismos en una cámara Minoru la cual es económica y de fácil obtención en el mercado.
 
 Los algoritmos estudiados son \textit{Block Matching} (BM) \Cite{K98}, \textit{Semi Global Block Matching} (SGBM) \Cite{H05} \Cite{EH08} y \textit{Efficient Large-scale Stereo} (ELAS) \Cite{GRU11}. Para la implementación de los primeros dos algoritmos se utilizó la librería OpenCV, mientras que para ELAS se utilizó LibELAS, librería producida por los autores del algoritmo original. Todos los algoritmos traen como resultado un mapa de disparidad. Un mapa de disparidad refiere a la distancia aparente de píxeles entre un par de imágenes estéreo. Para experimentar esta distancia obtenida, uno puede cerrar cada uno de los ojos de forma desfasada. Al hacer esto, los objetos más cercanos parecen moverse una distancia más significativa que los objetos más alejados. Como resultado, un mapa de disparidad permite visualizar en base a intensidades de grises o gamas de colores la profundidad de la escena.
 
-En el segundo capítulo se hará una explicación detallada del marco teórico necesario para poder comprender el funcionamiento de dichos algoritmos, presentando así una introducción a la geometría proyectiva para luego explicar el modelo de una cámara. Luego, en este capítulo se explican nociones sobre la visión estéreo incluyendo conceptos como calibración, rectificación y geometría epipolar. Para darle un cierre al marco teórico se profundiza sobre el concepto de mapa de disparidad. En el tercer capítulo se realizará una explicación detallada sobre cada uno de los algoritmos evaluados, explicando la forma en la que cada uno de estos obtiene un mapa de disparidad. En el cuarto capítulo se expone la experimentación realizada, presentando una comparación entre los distintos algoritmos. Finalmente, en el quinto capítulo se presentan las conclusiones del trabajo, evaluando tanto las comparaciones entre los algoritmos como la viabilidad de su uso en sistemas de bajos recursos. En este capítulo también se proponen aplicaciones y trabajos futuros.
+En el segundo capítulo se hará una explicación detallada del marco teórico necesario para poder comprender el funcionamiento de dichos algoritmos, presentando así una introducción a la geometría proyectiva para luego explicar el modelo de una cámara. Luego, en este capítulo se explican nociones sobre la visión estéreo incluyendo conceptos como calibración, rectificación y geometría epipolar. Para darle un cierre al marco teórico se profundiza sobre el concepto de mapa de disparidad. En el tercer capítulo se realizará una explicación detallada sobre cada uno de los algoritmos evaluados, explicando la forma en la que cada uno de estos obtiene un mapa de disparidad. En el cuarto capítulo se expone la experimentación realizada, presentando una comparación entre los distintos algoritmos. Finalmente, en el quinto capítulo se presentan las conclusiones del trabajo, evaluando tanto las comparaciones entre los algoritmos como la viabilidad de su uso en sistemas de bajos recursos.
 
 \newpage
 
@@ -395,7 +395,7 @@ El mapa de disparidad, o mapa de profundidad, almacena una nube de puntos en el 
 
 Para generar este mapa se hace una correspondencia entre los pixels de las dos imágenes estéreo. Midiendo la distancia entre cada par de puntos $\Scalar{x} - \Scalar{x'}$, mediante el proceso de triangulación se puede calcular la distancia \Scalar{z} al plano retinal.
 
-El mapa de disparidad generado será utilizado para reconstruir la escena. A continuación se presentan varios algoritmos para realizar la correspondencia entre pixels.
+El mapa de disparidad generado será utilizado para reconstruir la escena. En la sección 4 se presentan varios algoritmos para realizar la correspondencia entre pixels.
 
 \subsection{Cálculo de profundidad}
 
@@ -459,7 +459,7 @@ Scharstein y Szeliski \Cite{SS02} distinguen cuatro pasos que suelen realizarse 
 	\item Refinación de la disparidad
 \end{itemize}
 
-SGBM toma este modelo realizando implementaciones novedosas sobre cada uno de estos pasos.
+SGBM toma este modelo realizando implementaciones novedosas sobre varios de estos pasos.
 
 \subsubsection{Cálculo del costo de correspondencia}
 
@@ -508,7 +508,7 @@ Al obtener los costos de correspondencia de pixels, el cálculo de disparidad es
 
 \subsection{Efficient Large-scale Stereo Matching}
 
-ELAS (\textit{Efficient Large-scale Stereo}) propone un modelo generativo probabilístico para la correspondencia stereo entre píxeles mediante pequeñas ventanas de agregación reduciendo ambigüedades entre las correspondencias permitiendo la generación de un mapa de disparidad.
+ELAS (\textit{Efficient Large-scale Stereo}) propone un modelo generativo probabilístico para la correspondencia estereo entre píxeles mediante pequeñas ventanas de agregación reduciendo ambigüedades entre las correspondencias permitiendo la generación de un mapa de disparidad.
 
 El enfoque propuesto por ELAS realiza un análisis preliminar en el espacio de disparidades al formar una triangulación basada en correspondencias robustas llamadas “puntos soporte”. Estos puntos contienen información valiosa a la hora de comparar el resto de los puntos de las imágenes. Las características principales que permiten identificar estos puntos son la textura y la unicidad. Para la obtención de los puntos soporte se utiliza una cuadrícula de 9x9 usando la distancia $l_1$ entre los vectores que se forman al concatenar filtros de Sobel horizontales y verticales. Las máscaras de Sobel tienen un tamaño de 3x3 y un paso de 5 píxeles.
 
